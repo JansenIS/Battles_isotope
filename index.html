@@ -24,8 +24,9 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 3fr 1fr;
+            grid-template-columns: auto 320px;
             gap: 20px;
+            align-items: flex-start;
         }
         
         header {
@@ -85,6 +86,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            height: 600px;
+            overflow-y: auto;
         }
         
         .panel {
@@ -446,15 +449,6 @@
             opacity: 1;
         }
         
-        @media (max-width: 1100px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            
-            .unit-list {
-                grid-template-columns: 1fr;
-            }
-        }
         
         /* Анимация для отрядов под атакой */
         .under-attack {
@@ -1431,34 +1425,46 @@
             attackerForces.forEach(unit => {
                 // Подсветка отряда под атакой
                 highlightUnitUnderAttack(unit);
-                
+
                 // Уменьшаем размер отряда
-                const newCount = Math.max(1, Math.floor(unit.count * (1 - attackerLoss)));
+                const newCount = Math.floor(unit.count * (1 - attackerLoss));
                 const lossPercent = Math.round((1 - newCount / unit.count) * 100);
-                
+
                 // Обновляем XPL пропорционально потерям
                 const effectiveness = newCount / unit.originalCount;
-                unit.xpl = Math.max(0.1, unit.originalXPL * effectiveness);
-                
-                addLogEntry(`${unit.type} (Атакующий) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
-                unit.count = newCount;
+                const newXPL = unit.originalXPL * effectiveness;
+
+                if (newXPL < 0.1) {
+                    addLogEntry(`${unit.type} (Атакующий) уничтожен из-за потерь`);
+                    deleteUnit(unit.id, true);
+                } else {
+                    unit.xpl = newXPL;
+                    unit.count = Math.max(1, newCount);
+                    addLogEntry(`${unit.type} (Атакующий) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
+                }
             });
-            
+
             // Анимация потерь для защитников (только участвовавшие в бою)
             defenderForces.forEach(unit => {
                 // Подсветка отряда под атакой
                 highlightUnitUnderAttack(unit);
-                
+
                 // Уменьшаем размер отряда
-                const newCount = Math.max(1, Math.floor(unit.count * (1 - defenderLoss)));
+                const newCount = Math.floor(unit.count * (1 - defenderLoss));
                 const lossPercent = Math.round((1 - newCount / unit.count) * 100);
-                
+
                 // Обновляем XPL пропорционально потерям
                 const effectiveness = newCount / unit.originalCount;
-                unit.xpl = Math.max(0.1, unit.originalXPL * effectiveness);
-                
-                addLogEntry(`${unit.type} (Защитник) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
-                unit.count = newCount;
+                const newXPL = unit.originalXPL * effectiveness;
+
+                if (newXPL < 0.1) {
+                    addLogEntry(`${unit.type} (Защитник) уничтожен из-за потерь`);
+                    deleteUnit(unit.id, true);
+                } else {
+                    unit.xpl = newXPL;
+                    unit.count = Math.max(1, newCount);
+                    addLogEntry(`${unit.type} (Защитник) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
+                }
             });
             
             // Перерисовываем карту и обновляем статистику
@@ -1562,7 +1568,7 @@
         }
         
         // Удаление конкретного отряда
-        function deleteUnit(unitId) {
+        function deleteUnit(unitId, skipRender = false) {
             // Ищем отряд по ID
             let unitIndex = -1;
             let side = null;
@@ -1596,8 +1602,10 @@
                 deployedForces[side].splice(unitIndex, 1);
                 
                 addLogEntry(`Удален отряд: ${unit.type} (${side === 'attacker' ? 'Атакующий' : 'Защитник'}) с позиции [${unit.x}, ${unit.y}]`);
-                drawMap();
-                updateDeployedUnitsList();
+                if (!skipRender) {
+                    drawMap();
+                    updateDeployedUnitsList();
+                }
             }
         }
         
