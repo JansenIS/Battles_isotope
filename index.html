@@ -1,1234 +1,1388 @@
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Тактическая система РП-битв</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #e6e6e6;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: auto 320px;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        
-        header {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff8a00, #e52e71);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-        
-        .map-container {
-            background: rgba(0, 15, 30, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(100, 150, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #battleCanvas {
-            background: #0a1929;
-            border-radius: 10px;
-            display: block;
-            margin: 0 auto;
-            box-shadow: 0 0 30px rgba(0, 100, 255, 0.2);
-            cursor: pointer;
-        }
-        
-        .controls {
-            background: rgba(0, 15, 30, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(100, 150, 255, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: 600px;
-            overflow-y: auto;
-        }
-        
-        .panel {
-            background: rgba(10, 30, 50, 0.7);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        
-        .panel-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: #4fc3f7;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .panel-title::before {
-            content: "■";
-            color: #4fc3f7;
-        }
-        
-        .unit-list {
-            max-height: 200px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .unit-card {
-            background: rgba(30, 60, 90, 0.6);
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 0.9rem;
-            border-left: 3px solid #4fc3f7;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-        
-        .unit-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .unit-card.defender {
-            border-left-color: #ff5252;
-        }
-        
-        .unit-card.selected {
-            background: rgba(50, 100, 150, 0.8);
-            box-shadow: 0 0 0 2px #4fc3f7;
-        }
-        
-        .btn {
-            background: linear-gradient(45deg, #2196f3, #21cbf3);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6);
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-red {
-            background: linear-gradient(45deg, #ff5252, #ff7675);
-            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
-        }
-        
-        .btn-red:hover {
-            box-shadow: 0 6px 20px rgba(255, 82, 82, 0.6);
-        }
-        
-        .btn-green {
-            background: linear-gradient(45deg, #4CAF50, #8BC34A);
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-        }
-        
-        .btn-yellow {
-            background: linear-gradient(45deg, #FFC107, #FF9800);
-            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
-        }
-        
-        .btn-purple {
-            background: linear-gradient(45deg, #9C27B0, #673AB7);
-            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
-        }
-        
-        .btn-purple:hover {
-            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.6);
-        }
-        
-        .result-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .log-entry {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
-        }
-        
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-        
-        .dice-result {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            margin: 0 5px;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .stat-card {
-            background: rgba(30, 60, 90, 0.6);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #4fc3f7;
-        }
-        
-        .attacker-color { color: #4fc3f7; }
-        .defender-color { color: #ff5252; }
-        
-        .side-selector {
-            display: flex;
-            background: rgba(20, 40, 60, 0.7);
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        
-        .side-btn {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .side-btn.active {
-            background: rgba(33, 150, 243, 0.5);
-        }
-        
-        .side-btn.attacker.active {
-            background: rgba(33, 150, 243, 0.5);
-        }
-        
-        .side-btn.defender.active {
-            background: rgba(255, 82, 82, 0.5);
-        }
-        
-        .instructions {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .movement-info {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        
-        .bonus-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .bonus-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background: rgba(30, 60, 90, 0.6);
-            border-radius: 8px;
-        }
-        
-        .dice-selector {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .dice-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            background: rgba(100, 100, 100, 0.5);
-            font-weight: bold;
-        }
-        
-        .dice-btn.selected {
-            background: linear-gradient(45deg, #FFC107, #FF9800);
-            box-shadow: 0 0 5px rgba(255, 193, 7, 0.8);
-        }
-        
-        .phase-indicator {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-        }
-        
-        .phase {
-            padding: 8px 15px;
-            border-radius: 20px;
-            background: rgba(50, 50, 50, 0.5);
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        
-        .phase.active {
-            background: linear-gradient(45deg, #4CAF50, #8BC34A);
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-        }
-        
-        .position-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 15px 0;
-        }
-        
-        .toggle-option {
-            padding: 10px 20px;
-            border-radius: 20px;
-            background: rgba(50, 50, 50, 0.5);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .toggle-option.active {
-            background: linear-gradient(45deg, #9C27B0, #673AB7);
-            box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
-        }
-        
-        .range-info {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-        
-        .range-item {
-            background: rgba(70, 70, 100, 0.5);
-            padding: 5px 10px;
-            border-radius: 10px;
-        }
-        
-        .deployment-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .deploy-btn {
-            background: linear-gradient(45deg, #9C27B0, #673AB7);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-        }
-        
-        .ignore-losses-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(30, 60, 90, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .ignore-losses-toggle.active {
-            background: rgba(80, 40, 120, 0.8);
-            box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
-        }
-        
-        .toggle-indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #555;
-            position: relative;
-        }
-        
-        .ignore-losses-toggle.active .toggle-indicator {
-            background: #4CAF50;
-        }
-        
-        .toggle-indicator::after {
-            content: '';
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ddd;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .ignore-losses-toggle.active .toggle-indicator::after {
-            opacity: 1;
-        }
-        
-        
-        /* Анимация для отрядов под атакой */
-        .under-attack {
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 50, 50, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 50, 50, 0); }
-        }
-        
-        /* Стиль для кнопки удаления отряда */
-        .delete-unit {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            cursor: pointer;
-            color: #ff5252;
-            opacity: 0.7;
-            transition: all 0.2s;
-        }
-        
-        .delete-unit:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #e6e6e6;
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1700px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: auto 320px 320px;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      header {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #ff8a00, #e52e71);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        margin-bottom: 20px;
+      }
+
+      .map-container {
+        background: rgba(0, 15, 30, 0.8);
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(100, 150, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      #battleCanvas {
+        background: #0a1929;
+        border-radius: 10px;
+        display: block;
+        margin: 0 auto;
+        box-shadow: 0 0 30px rgba(0, 100, 255, 0.2);
+        cursor: pointer;
+      }
+
+      .controls {
+        background: rgba(0, 15, 30, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(100, 150, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .panel {
+        background: rgba(10, 30, 50, 0.7);
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .panel-title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #4fc3f7;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .panel-title::before {
+        content: "■";
+        color: #4fc3f7;
+      }
+
+      .unit-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .unit-card {
+        background: rgba(30, 60, 90, 0.6);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 0.9rem;
+        border-left: 3px solid #4fc3f7;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .unit-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .unit-card.defender {
+        border-left-color: #ff5252;
+      }
+
+      .unit-card.selected {
+        background: rgba(50, 100, 150, 0.8);
+        box-shadow: 0 0 0 2px #4fc3f7;
+      }
+
+      .btn {
+        background: linear-gradient(45deg, #2196f3, #21cbf3);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn-red {
+        background: linear-gradient(45deg, #ff5252, #ff7675);
+        box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+      }
+
+      .btn-red:hover {
+        box-shadow: 0 6px 20px rgba(255, 82, 82, 0.6);
+      }
+
+      .btn-green {
+        background: linear-gradient(45deg, #4caf50, #8bc34a);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+      }
+
+      .btn-yellow {
+        background: linear-gradient(45deg, #ffc107, #ff9800);
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+      }
+
+      .btn-purple {
+        background: linear-gradient(45deg, #9c27b0, #673ab7);
+        box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+      }
+
+      .btn-purple:hover {
+        box-shadow: 0 6px 20px rgba(156, 39, 176, 0.6);
+      }
+
+      .result-container {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .log-entry {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.9rem;
+      }
+
+      .log-entry:last-child {
+        border-bottom: none;
+      }
+
+      .dice-result {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 0 5px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .stat-card {
+        background: rgba(30, 60, 90, 0.6);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #4fc3f7;
+      }
+
+      .attacker-color {
+        color: #4fc3f7;
+      }
+      .defender-color {
+        color: #ff5252;
+      }
+
+      .side-selector {
+        display: flex;
+        background: rgba(20, 40, 60, 0.7);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 15px;
+      }
+
+      .side-btn {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .side-btn.active {
+        background: rgba(33, 150, 243, 0.5);
+      }
+
+      .side-btn.attacker.active {
+        background: rgba(33, 150, 243, 0.5);
+      }
+
+      .side-btn.defender.active {
+        background: rgba(255, 82, 82, 0.5);
+      }
+
+      .instructions {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-top: 10px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+      }
+
+      .movement-info {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .bonus-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .bonus-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        background: rgba(30, 60, 90, 0.6);
+        border-radius: 8px;
+      }
+
+      .dice-selector {
+        display: flex;
+        gap: 5px;
+      }
+
+      .dice-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: rgba(100, 100, 100, 0.5);
+        font-weight: bold;
+      }
+
+      .dice-btn.selected {
+        background: linear-gradient(45deg, #ffc107, #ff9800);
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.8);
+      }
+
+      .phase-indicator {
+        display: flex;
+        justify-content: space-around;
+        margin: 15px 0;
+      }
+
+      .phase {
+        padding: 8px 15px;
+        border-radius: 20px;
+        background: rgba(50, 50, 50, 0.5);
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .phase.active {
+        background: linear-gradient(45deg, #4caf50, #8bc34a);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+      }
+
+      .position-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 15px 0;
+      }
+
+      .toggle-option {
+        padding: 10px 20px;
+        border-radius: 20px;
+        background: rgba(50, 50, 50, 0.5);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .toggle-option.active {
+        background: linear-gradient(45deg, #9c27b0, #673ab7);
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
+      }
+
+      .range-info {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 10px 0;
+        font-size: 0.9rem;
+      }
+
+      .range-item {
+        background: rgba(70, 70, 100, 0.5);
+        padding: 5px 10px;
+        border-radius: 10px;
+      }
+
+      .deployment-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .deploy-btn {
+        background: linear-gradient(45deg, #9c27b0, #673ab7);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+      }
+
+      .ignore-losses-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(30, 60, 90, 0.6);
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .ignore-losses-toggle.active {
+        background: rgba(80, 40, 120, 0.8);
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
+      }
+
+      .toggle-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #555;
+        position: relative;
+      }
+
+      .ignore-losses-toggle.active .toggle-indicator {
+        background: #4caf50;
+      }
+
+      .toggle-indicator::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ddd;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .ignore-losses-toggle.active .toggle-indicator::after {
+        opacity: 1;
+      }
+
+      /* Анимация для отрядов под атакой */
+      .under-attack {
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(255, 50, 50, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 50, 50, 0);
+        }
+      }
+
+      /* Стиль для кнопки удаления отряда */
+      .delete-unit {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        color: #ff5252;
+        opacity: 0.7;
+        transition: all 0.2s;
+      }
+
+      .delete-unit:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-chess-rook"></i> Тактическая система РП-битв</h1>
-            <div class="subtitle">Размещайте войска, выбирайте тактику и наблюдайте за результатами</div>
-        </header>
-        
-        <main class="map-container">
-            <canvas id="battleCanvas" width="900" height="600"></canvas>
-        </main>
-        
-        <aside class="controls">
-            <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-cogs"></i> Режим расчета</h2>
-                <div class="position-toggle">
-                    <div class="toggle-option active" id="positionModeOn">С учетом позиции</div>
-                    <div class="toggle-option" id="positionModeOff">Без учета позиции</div>
-                </div>
-                
-                <div class="range-info">
-                    <div class="range-item">Ближний бой: 1 клетка</div>
-                    <div class="range-item">Копейщики: 2 клетки</div>
-                    <div class="range-item">Дальний бой: 10 клеток</div>
-                    <div class="range-item">Артиллерия: 15 клеток</div>
-                </div>
-                
-                <h2 class="panel-title"><i class="fas fa-flag"></i> Фазы игры</h2>
-                <div class="phase-indicator">
-                    <div class="phase active" id="phaseDeployment">Размещение</div>
-                    <div class="phase" id="phaseMovement">Перемещение</div>
-                    <div class="phase" id="phaseBattle">Битва</div>
-                </div>
-                
-                <div class="deployment-controls">
-                    <h2 class="panel-title"><i class="fas fa-plus-circle"></i> Размещение войск</h2>
-                    <div class="side-selector">
-                        <div class="side-btn attacker active" id="attackerSide">Атакующий</div>
-                        <div class="side-btn defender" id="defenderSide">Защитник</div>
-                    </div>
-                    
-                    <div class="instructions">
-                        <i class="fas fa-info-circle"></i> Выберите тип войск и кликните на карте для размещения
-                    </div>
-                    
-                    <div class="unit-list" id="unitSelector">
-                        <!-- Все 19 типов отрядов из вашей таблицы -->
-                        <div class="unit-card" data-type="Крестьянское ополчение" data-count="1000" data-xpl="0.5">
-                            <strong>Крестьянское ополчение</strong>
-                            <div>1000 чел. | 0.5 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Тренированное крестьянское ополчение" data-count="1000" data-xpl="1">
-                            <strong>Тренированное ополчение</strong>
-                            <div>1000 чел. | 1 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Пешее ополчение с электрокопьями" data-count="500" data-xpl="1">
-                            <strong>Ополчение (электрокопья)</strong>
-                            <div>500 чел. | 1 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Пешее ополчение с электропневматикой" data-count="500" data-xpl="1">
-                            <strong>Ополчение (электропневм.)</strong>
-                            <div>500 чел. | 1 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Инженерная команда" data-count="10" data-xpl="2">
-                            <strong>Инженерная команда</strong>
-                            <div>10 чел. | 2 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Городская сотня" data-count="100" data-xpl="0.5">
-                            <strong>Городская сотня</strong>
-                            <div>100 чел. | 0.5 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Штурмовая баталия" data-count="150" data-xpl="2">
-                            <strong>Штурмовая баталия</strong>
-                            <div>150 чел. | 2 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Серая баталия" data-count="250" data-xpl="3">
-                            <strong>Серая баталия</strong>
-                            <div>250 чел. | 3 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Гвардия Дома" data-count="150" data-xpl="3">
-                            <strong>Гвардия Дома</strong>
-                            <div>150 чел. | 3 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Пешие превенторы" data-count="100" data-xpl="4">
-                            <strong>Пешие превенторы</strong>
-                            <div>100 чел. | 4 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Стационарная винтовка Гаусса" data-count="1" data-xpl="1">
-                            <strong>Винтовка Гаусса</strong>
-                            <div>1 ед. | 1 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Легкие мотоциклисты" data-count="50" data-xpl="1">
-                            <strong>Легкие мотоциклисты</strong>
-                            <div>50 ед. | 1 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Легкое осадное орудие" data-count="1" data-xpl="2">
-                            <strong>Легкое осадное орудие</strong>
-                            <div>1 ед. | 2 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Рейдеры с винтовкой Гаусса" data-count="2" data-xpl="2">
-                            <strong>Рейдеры (Гаусс)</strong>
-                            <div>2 ед. | 2 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Требюше" data-count="1" data-xpl="3">
-                            <strong>Требюше</strong>
-                            <div>1 ед. | 3 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Штурмовое орудие" data-count="1" data-xpl="3">
-                            <strong>Штурмовое орудие</strong>
-                            <div>1 ед. | 3 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Палатинские всадники" data-count="20" data-xpl="3">
-                            <strong>Палатинские всадники</strong>
-                            <div>20 ед. | 3 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Большая техника" data-count="1" data-xpl="4">
-                            <strong>Большая техника</strong>
-                            <div>1 ед. | 4 XPL</div>
-                        </div>
-                        <div class="unit-card" data-type="Вагенбург" data-count="1" data-xpl="7">
-                            <strong>Вагенбург</strong>
-                            <div>1 ед. | 7 XPL</div>
-                        </div>
-                    </div>
-                    
-                    <button class="deploy-btn" id="clearSideBtn">
-                        <i class="fas fa-trash"></i> Очистить войска стороны
-                    </button>
-                </div>
-                
-                <div class="movement-info" id="movementInfo">
-                    Фаза размещения: выберите тип войск и разместите их на карте
-                </div>
+      <header>
+        <h1><i class="fas fa-chess-rook"></i> Тактическая система РП-битв</h1>
+        <div class="subtitle">
+          Размещайте войска, выбирайте тактику и наблюдайте за результатами
+        </div>
+      </header>
+
+      <main class="map-container">
+        <canvas id="battleCanvas" width="900" height="600"></canvas>
+      </main>
+
+      <aside class="controls">
+        <div class="panel">
+          <h2 class="panel-title"><i class="fas fa-cogs"></i> Режим расчета</h2>
+          <div class="position-toggle">
+            <div class="toggle-option active" id="positionModeOn">
+              С учетом позиции
             </div>
-            
-            <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-dice"></i> Тактические бонусы</h2>
-                <div class="bonus-controls">
-                    <div class="bonus-row">
-                        <div class="attacker-color">Атакующий</div>
-                        <div class="dice-selector">
-                            <div class="dice-btn" data-dice="0">0</div>
-                            <div class="dice-btn selected" data-dice="1">1</div>
-                            <div class="dice-btn" data-dice="2">2</div>
-                            <div class="dice-btn" data-dice="3">3</div>
-                        </div>
-                    </div>
-                    <div class="bonus-row">
-                        <div class="defender-color">Защитник</div>
-                        <div class="dice-selector">
-                            <div class="dice-btn" data-dice="0">0</div>
-                            <div class="dice-btn selected" data-dice="1">1</div>
-                            <div class="dice-btn" data-dice="2">2</div>
-                            <div class="dice-btn" data-dice="3">3</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Переключатель отключения потерь -->
-                <div class="ignore-losses-toggle" id="ignoreLossesToggle">
-                    <div>
-                        <i class="fas fa-shield-alt"></i> Игнорировать потери
-                    </div>
-                    <div class="toggle-indicator"></div>
-                </div>
-                
-                <div class="instructions">
-                    <i class="fas fa-info-circle"></i> Отключите потери для ближайшей симуляции
-                </div>
+            <div class="toggle-option" id="positionModeOff">
+              Без учета позиции
             </div>
-            
-            <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-users"></i> Размещенные войска</h2>
-                <div class="unit-list" id="deployedUnits">
-                    <div class="unit-card">
-                        <strong>Войска не размещены</strong>
-                        <div>Добавьте войска на карту</div>
-                    </div>
-                </div>
+          </div>
+
+          <div class="range-info">
+            <div class="range-item">Ближний бой: 1 клетка</div>
+            <div class="range-item">Копейщики: 2 клетки</div>
+            <div class="range-item">Дальний бой: 10 клеток</div>
+            <div class="range-item">Артиллерия: 15 клеток</div>
+          </div>
+
+          <h2 class="panel-title"><i class="fas fa-flag"></i> Фазы игры</h2>
+          <div class="phase-indicator">
+            <div class="phase active" id="phaseDeployment">Размещение</div>
+            <div class="phase" id="phaseMovement">Перемещение</div>
+            <div class="phase" id="phaseBattle">Битва</div>
+          </div>
+
+          <div class="deployment-controls">
+            <h2 class="panel-title">
+              <i class="fas fa-plus-circle"></i> Размещение войск
+            </h2>
+            <div class="side-selector">
+              <div class="side-btn attacker active" id="attackerSide">
+                Атакующий
+              </div>
+              <div class="side-btn defender" id="defenderSide">Защитник</div>
             </div>
-            
-            <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-scroll"></i> Результаты боя</h2>
-                <div class="result-container" id="battleLog">
-                    <div class="log-entry">[Система] Готовы к размещению войск. Выберите сторону и тип войск.</div>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="attacker-color">Атакующий</div>
-                        <div class="stat-value">0 XPL</div>
-                        <div>Отряды: <span class="attacker-color">0</span></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="defender-color">Защитник</div>
-                        <div class="stat-value">0 XPL</div>
-                        <div>Отряды: <span class="defender-color">0</span></div>
-                    </div>
-                </div>
+
+            <div class="instructions">
+              <i class="fas fa-info-circle"></i> Выберите тип войск и кликните
+              на карте для размещения
             </div>
-            
-            <!-- Кнопка для генерации карты -->
-            <button class="btn btn-yellow" id="newMapBtn">
-                <i class="fas fa-sync-alt"></i> Новая карта
+
+            <div class="unit-list" id="unitSelector">
+              <!-- Все 19 типов отрядов из вашей таблицы -->
+              <div
+                class="unit-card"
+                data-type="Крестьянское ополчение"
+                data-count="1000"
+                data-xpl="0.5"
+              >
+                <strong>Крестьянское ополчение</strong>
+                <div>1000 чел. | 0.5 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Тренированное крестьянское ополчение"
+                data-count="1000"
+                data-xpl="1"
+              >
+                <strong>Тренированное ополчение</strong>
+                <div>1000 чел. | 1 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Пешее ополчение с электрокопьями"
+                data-count="500"
+                data-xpl="1"
+              >
+                <strong>Ополчение (электрокопья)</strong>
+                <div>500 чел. | 1 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Пешее ополчение с электропневматикой"
+                data-count="500"
+                data-xpl="1"
+              >
+                <strong>Ополчение (электропневм.)</strong>
+                <div>500 чел. | 1 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Инженерная команда"
+                data-count="10"
+                data-xpl="2"
+              >
+                <strong>Инженерная команда</strong>
+                <div>10 чел. | 2 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Городская сотня"
+                data-count="100"
+                data-xpl="0.5"
+              >
+                <strong>Городская сотня</strong>
+                <div>100 чел. | 0.5 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Штурмовая баталия"
+                data-count="150"
+                data-xpl="2"
+              >
+                <strong>Штурмовая баталия</strong>
+                <div>150 чел. | 2 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Серая баталия"
+                data-count="250"
+                data-xpl="3"
+              >
+                <strong>Серая баталия</strong>
+                <div>250 чел. | 3 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Гвардия Дома"
+                data-count="150"
+                data-xpl="3"
+              >
+                <strong>Гвардия Дома</strong>
+                <div>150 чел. | 3 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Пешие превенторы"
+                data-count="100"
+                data-xpl="4"
+              >
+                <strong>Пешие превенторы</strong>
+                <div>100 чел. | 4 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Стационарная винтовка Гаусса"
+                data-count="1"
+                data-xpl="1"
+              >
+                <strong>Винтовка Гаусса</strong>
+                <div>1 ед. | 1 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Легкие мотоциклисты"
+                data-count="50"
+                data-xpl="1"
+              >
+                <strong>Легкие мотоциклисты</strong>
+                <div>50 ед. | 1 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Легкое осадное орудие"
+                data-count="1"
+                data-xpl="2"
+              >
+                <strong>Легкое осадное орудие</strong>
+                <div>1 ед. | 2 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Рейдеры с винтовкой Гаусса"
+                data-count="2"
+                data-xpl="2"
+              >
+                <strong>Рейдеры (Гаусс)</strong>
+                <div>2 ед. | 2 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Требюше"
+                data-count="1"
+                data-xpl="3"
+              >
+                <strong>Требюше</strong>
+                <div>1 ед. | 3 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Штурмовое орудие"
+                data-count="1"
+                data-xpl="3"
+              >
+                <strong>Штурмовое орудие</strong>
+                <div>1 ед. | 3 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Палатинские всадники"
+                data-count="20"
+                data-xpl="3"
+              >
+                <strong>Палатинские всадники</strong>
+                <div>20 ед. | 3 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Большая техника"
+                data-count="1"
+                data-xpl="4"
+              >
+                <strong>Большая техника</strong>
+                <div>1 ед. | 4 XPL</div>
+              </div>
+              <div
+                class="unit-card"
+                data-type="Вагенбург"
+                data-count="1"
+                data-xpl="7"
+              >
+                <strong>Вагенбург</strong>
+                <div>1 ед. | 7 XPL</div>
+              </div>
+            </div>
+
+            <button class="deploy-btn" id="clearSideBtn">
+              <i class="fas fa-trash"></i> Очистить войска стороны
             </button>
-            
-            <button class="btn btn-green" id="simulateBtn">
-                <i class="fas fa-play"></i> Симулировать бой
-            </button>
-            
-            <button class="btn btn-purple" id="noLossBtn">
-                <i class="fas fa-shield-alt"></i> Без потерь (след. ход)
-            </button>
-            
-            <button class="btn btn-red" id="resetBtn">
-                <i class="fas fa-redo"></i> Сбросить игру
-            </button>
-        </aside>
+          </div>
+
+          <div class="movement-info" id="movementInfo">
+            Фаза размещения: выберите тип войск и разместите их на карте
+          </div>
+        </div>
+      </aside>
+
+      <aside class="controls">
+        <div class="panel">
+          <h2 class="panel-title">
+            <i class="fas fa-dice"></i> Тактические бонусы
+          </h2>
+          <div class="bonus-controls">
+            <div class="bonus-row">
+              <div class="attacker-color">Атакующий</div>
+              <div class="dice-selector">
+                <div class="dice-btn" data-dice="0">0</div>
+                <div class="dice-btn selected" data-dice="1">1</div>
+                <div class="dice-btn" data-dice="2">2</div>
+                <div class="dice-btn" data-dice="3">3</div>
+              </div>
+            </div>
+            <div class="bonus-row">
+              <div class="defender-color">Защитник</div>
+              <div class="dice-selector">
+                <div class="dice-btn" data-dice="0">0</div>
+                <div class="dice-btn selected" data-dice="1">1</div>
+                <div class="dice-btn" data-dice="2">2</div>
+                <div class="dice-btn" data-dice="3">3</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Переключатель отключения потерь -->
+          <div class="ignore-losses-toggle" id="ignoreLossesToggle">
+            <div><i class="fas fa-shield-alt"></i> Игнорировать потери</div>
+            <div class="toggle-indicator"></div>
+          </div>
+
+          <div class="instructions">
+            <i class="fas fa-info-circle"></i> Отключите потери для ближайшей
+            симуляции
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">
+            <i class="fas fa-users"></i> Размещенные войска
+          </h2>
+          <div class="unit-list" id="deployedUnits">
+            <div class="unit-card">
+              <strong>Войска не размещены</strong>
+              <div>Добавьте войска на карту</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">
+            <i class="fas fa-scroll"></i> Результаты боя
+          </h2>
+          <div class="result-container" id="battleLog">
+            <div class="log-entry">
+              [Система] Готовы к размещению войск. Выберите сторону и тип войск.
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <div class="attacker-color">Атакующий</div>
+              <div class="stat-value">0 XPL</div>
+              <div>Отряды: <span class="attacker-color">0</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="defender-color">Защитник</div>
+              <div class="stat-value">0 XPL</div>
+              <div>Отряды: <span class="defender-color">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Кнопка для генерации карты -->
+        <button class="btn btn-yellow" id="newMapBtn">
+          <i class="fas fa-sync-alt"></i> Новая карта
+        </button>
+
+        <button class="btn btn-green" id="simulateBtn">
+          <i class="fas fa-play"></i> Симулировать бой
+        </button>
+
+        <button class="btn btn-purple" id="noLossBtn">
+          <i class="fas fa-shield-alt"></i> Без потерь (след. ход)
+        </button>
+
+        <button class="btn btn-red" id="resetBtn">
+          <i class="fas fa-redo"></i> Сбросить игру
+        </button>
+      </aside>
     </div>
-    
+
     <script>
-        // Глобальные переменные
-        const canvas = document.getElementById('battleCanvas');
-        const ctx = canvas.getContext('2d');
-        const battleLog = document.getElementById('battleLog');
-        const simulateBtn = document.getElementById('simulateBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const newMapBtn = document.getElementById('newMapBtn');
-        const noLossBtn = document.getElementById('noLossBtn');
-        const ignoreLossesToggle = document.getElementById('ignoreLossesToggle');
-        const deployedUnits = document.getElementById('deployedUnits');
-        const attackerSide = document.getElementById('attackerSide');
-        const defenderSide = document.getElementById('defenderSide');
-        const movementInfo = document.getElementById('movementInfo');
-        const phaseDeployment = document.getElementById('phaseDeployment');
-        const phaseMovement = document.getElementById('phaseMovement');
-        const phaseBattle = document.getElementById('phaseBattle');
-        const positionModeOn = document.getElementById('positionModeOn');
-        const positionModeOff = document.getElementById('positionModeOff');
-        const unitSelector = document.getElementById('unitSelector');
-        const clearSideBtn = document.getElementById('clearSideBtn');
-        
-        // Конфигурация карты
-        const MAP_WIDTH = 45;
-        const MAP_HEIGHT = 30;
-        const TILE_SIZE = 20;
-        const TERRAIN_TYPES = {
-            'grass': '#3a5f3a',
-            'forest': '#2c4d2c',
-            'water': '#2a4a6a',
-            'mountain': '#6d6d6d',
-            'sand': '#b8a37d',
-            'road': '#8b7d6b'
-        };
-        
-        // Типы войск и их радиусы перемещения
-        const UNIT_MOVEMENT = {
-            'Крестьянское ополчение': 4,
-            'Тренированное крестьянское ополчение': 4,
-            'Пешее ополчение с электрокопьями': 4,
-            'Пешее ополчение с электропневматикой': 4,
-            'Инженерная команда': 4,
-            'Городская сотня': 4,
-            'Штурмовая баталия': 4,
-            'Серая баталия': 4,
-            'Гвардия Дома': 4,
-            'Пешие превенторы': 4,
-            'Стационарная винтовка Гаусса': 1,
-            'Легкие мотоциклисты': 8,
-            'Легкое осадное орудие': 1,
-            'Рейдеры с винтовкой Гаусса': 8,
-            'Требюше': 1,
-            'Штурмовое орудие': 1,
-            'Палатинские всадники': 8,
-            'Большая техника': 8,
-            'Вагенбург': 1
-        };
-        
-        // Радиусы атаки для разных типов войск
-        const UNIT_ATTACK_RANGE = {
-            'Крестьянское ополчение': 1,
-            'Тренированное крестьянское ополчение': 1,
-            'Пешее ополчение с электрокопьями': 2,
-            'Пешее ополчение с электропневматикой': 10,
-            'Инженерная команда': 1,
-            'Городская сотня': 1,
-            'Штурмовая баталия': 10,
-            'Серая баталия': 10,
-            'Гвардия Дома': 1,
-            'Пешие превенторы': 1,
-            'Стационарная винтовка Гаусса': 15,
-            'Легкие мотоциклисты': 1,
-            'Легкое осадное орудие': 15,
-            'Рейдеры с винтовкой Гаусса': 10,
-            'Требюше': 15,
-            'Штурмовое орудие': 15,
-            'Палатинские всадники': 1,
-            'Большая техника': 15,
-            'Вагенбург': 10
-        };
-        
-        // Данные для генерации карты
-        let map = [];
-        let selectedUnit = null;
-        let selectedUnitType = null;
-        let currentSide = 'attacker';
-        let deployedForces = {
-            attacker: [],
-            defender: []
-        };
-        let availableCells = [];
-        let currentPhase = 'deployment';
-        let attackerDice = 1;
-        let defenderDice = 1;
-        let positionMode = true;
-        let ignoreLosses = false;
+      // Глобальные переменные
+      const canvas = document.getElementById("battleCanvas");
+      const ctx = canvas.getContext("2d");
+      const battleLog = document.getElementById("battleLog");
+      const simulateBtn = document.getElementById("simulateBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const newMapBtn = document.getElementById("newMapBtn");
+      const noLossBtn = document.getElementById("noLossBtn");
+      const ignoreLossesToggle = document.getElementById("ignoreLossesToggle");
+      const deployedUnits = document.getElementById("deployedUnits");
+      const attackerSide = document.getElementById("attackerSide");
+      const defenderSide = document.getElementById("defenderSide");
+      const movementInfo = document.getElementById("movementInfo");
+      const phaseDeployment = document.getElementById("phaseDeployment");
+      const phaseMovement = document.getElementById("phaseMovement");
+      const phaseBattle = document.getElementById("phaseBattle");
+      const positionModeOn = document.getElementById("positionModeOn");
+      const positionModeOff = document.getElementById("positionModeOff");
+      const unitSelector = document.getElementById("unitSelector");
+      const clearSideBtn = document.getElementById("clearSideBtn");
 
-        // Инициализация
-        function init() {
-            generateMap();
-            drawMap();
-            setupEventListeners();
-            updateDeployedUnitsList();
-            addLogEntry("Система инициализирована. Процедурная карта сгенерирована.");
-            addLogEntry("Режим: С учетом позиции войск.");
-            addLogEntry("Фаза: Размещение войск. Выберите тип войск и разместите их на карте.");
-        }
-        
-        // Улучшенная генерация карты
-        function generateMap() {
-            map = [];
-            
-            // Создаем базовый шум для карты
-            const noise = [];
-            for (let i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
-                noise[i] = Math.random();
-            }
-            
-            // Применяем размытие для создания плавных переходов
-            const blurredNoise = blurNoise(noise, MAP_WIDTH, MAP_HEIGHT, 2);
-            
-            // Генерируем карту на основе шума
-            for (let y = 0; y < MAP_HEIGHT; y++) {
-                for (let x = 0; x < MAP_WIDTH; x++) {
-                    const noiseValue = blurredNoise[y * MAP_WIDTH + x];
-                    let terrainType = 'grass';
-                    
-                    // Определяем тип местности по значению шума
-                    if (noiseValue < 0.15) {
-                        terrainType = 'water';
-                    } else if (noiseValue < 0.25) {
-                        terrainType = 'sand';
-                    } else if (noiseValue < 0.6) {
-                        terrainType = 'grass';
-                    } else if (noiseValue < 0.75) {
-                        terrainType = 'forest';
-                    } else {
-                        terrainType = 'mountain';
-                    }
-                    
-                    map.push({
-                        x, y,
-                        type: terrainType,
-                        unit: null
-                    });
-                }
-            }
-            
-            // Добавляем реку (случайное блуждание)
-            generateRiver();
-            
-            // Добавляем дороги
-            generateRoads();
-            
-            // Добавляем озера
-            generateLakes();
+      // Конфигурация карты
+      const MAP_WIDTH = 45;
+      const MAP_HEIGHT = 30;
+      const TILE_SIZE = 20;
+      const TERRAIN_TYPES = {
+        grass: "#3a5f3a",
+        forest: "#2c4d2c",
+        water: "#2a4a6a",
+        mountain: "#6d6d6d",
+        sand: "#b8a37d",
+        road: "#8b7d6b",
+      };
+
+      // Типы войск и их радиусы перемещения
+      const UNIT_MOVEMENT = {
+        "Крестьянское ополчение": 4,
+        "Тренированное крестьянское ополчение": 4,
+        "Пешее ополчение с электрокопьями": 4,
+        "Пешее ополчение с электропневматикой": 4,
+        "Инженерная команда": 4,
+        "Городская сотня": 4,
+        "Штурмовая баталия": 4,
+        "Серая баталия": 4,
+        "Гвардия Дома": 4,
+        "Пешие превенторы": 4,
+        "Стационарная винтовка Гаусса": 1,
+        "Легкие мотоциклисты": 8,
+        "Легкое осадное орудие": 1,
+        "Рейдеры с винтовкой Гаусса": 8,
+        Требюше: 1,
+        "Штурмовое орудие": 1,
+        "Палатинские всадники": 8,
+        "Большая техника": 8,
+        Вагенбург: 1,
+      };
+
+      // Радиусы атаки для разных типов войск
+      const UNIT_ATTACK_RANGE = {
+        "Крестьянское ополчение": 1,
+        "Тренированное крестьянское ополчение": 1,
+        "Пешее ополчение с электрокопьями": 2,
+        "Пешее ополчение с электропневматикой": 10,
+        "Инженерная команда": 1,
+        "Городская сотня": 1,
+        "Штурмовая баталия": 10,
+        "Серая баталия": 10,
+        "Гвардия Дома": 1,
+        "Пешие превенторы": 1,
+        "Стационарная винтовка Гаусса": 15,
+        "Легкие мотоциклисты": 1,
+        "Легкое осадное орудие": 15,
+        "Рейдеры с винтовкой Гаусса": 10,
+        Требюше: 15,
+        "Штурмовое орудие": 15,
+        "Палатинские всадники": 1,
+        "Большая техника": 15,
+        Вагенбург: 10,
+      };
+
+      // Данные для генерации карты
+      let map = [];
+      let selectedUnit = null;
+      let selectedUnitType = null;
+      let currentSide = "attacker";
+      let deployedForces = {
+        attacker: [],
+        defender: [],
+      };
+      let availableCells = [];
+      let currentPhase = "deployment";
+      let attackerDice = 1;
+      let defenderDice = 1;
+      let positionMode = true;
+      let ignoreLosses = false;
+
+      // Инициализация
+      function init() {
+        generateMap();
+        drawMap();
+        setupEventListeners();
+        updateDeployedUnitsList();
+        addLogEntry(
+          "Система инициализирована. Процедурная карта сгенерирована.",
+        );
+        addLogEntry("Режим: С учетом позиции войск.");
+        addLogEntry(
+          "Фаза: Размещение войск. Выберите тип войск и разместите их на карте.",
+        );
+      }
+
+      // Улучшенная генерация карты
+      function generateMap() {
+        map = [];
+
+        // Создаем базовый шум для карты
+        const noise = [];
+        for (let i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
+          noise[i] = Math.random();
         }
 
-        // Функция размытия шума
-        function blurNoise(noise, width, height, passes) {
-            let currentNoise = [...noise];
-            
-            for (let p = 0; p < passes; p++) {
-                const newNoise = new Array(noise.length);
-                
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        let sum = 0;
-                        let count = 0;
-                        
-                        // Учитываем соседние клетки
-                        for (let dy = -1; dy <= 1; dy++) {
-                            for (let dx = -1; dx <= 1; dx++) {
-                                const nx = x + dx;
-                                const ny = y + dy;
-                                
-                                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                                    sum += currentNoise[ny * width + nx];
-                                    count++;
-                                }
-                            }
-                        }
-                        
-                        newNoise[y * width + x] = sum / count;
-                    }
-                }
-                
-                currentNoise = newNoise;
-            }
-            
-            return currentNoise;
-        }
+        // Применяем размытие для создания плавных переходов
+        const blurredNoise = blurNoise(noise, MAP_WIDTH, MAP_HEIGHT, 2);
 
-        // Генерация реки (алгоритм случайного блуждания)
-        function generateRiver() {
-            // Начальная точка реки (случайно на левом краю)
-            let x = 0;
-            let y = Math.floor(Math.random() * (MAP_HEIGHT - 10)) + 5;
-            const riverWidth = 2 + Math.floor(Math.random() * 2);
-            
-            // Пока река не достигнет правого края
-            while (x < MAP_WIDTH - 1) {
-                // Расширяем реку
-                for (let wy = -riverWidth; wy <= riverWidth; wy++) {
-                    const ny = y + wy;
-                    if (ny >= 0 && ny < MAP_HEIGHT) {
-                        const index = ny * MAP_WIDTH + x;
-                        if (index >= 0 && index < map.length) {
-                            map[index].type = 'water';
-                        }
-                    }
-                }
-                
-                // Случайное движение: вправо (обязательно), вверх/вниз
-                const dir = Math.random();
-                if (dir < 0.4 && y > 3) y--;
-                else if (dir < 0.8 && y < MAP_HEIGHT - 4) y++;
-                
-                x++;
-            }
-        }
+        // Генерируем карту на основе шума
+        for (let y = 0; y < MAP_HEIGHT; y++) {
+          for (let x = 0; x < MAP_WIDTH; x++) {
+            const noiseValue = blurredNoise[y * MAP_WIDTH + x];
+            let terrainType = "grass";
 
-        // Генерация дорог
-        function generateRoads() {
-            // Вертикальные дороги
-            for (let i = 0; i < 2; i++) {
-                const x = Math.floor(Math.random() * (MAP_WIDTH - 10)) + 5;
-                for (let y = 0; y < MAP_HEIGHT; y++) {
-                    const index = y * MAP_WIDTH + x;
-                    if (index < map.length && map[index].type !== 'water') {
-                        map[index].type = 'road';
-                    }
-                }
+            // Определяем тип местности по значению шума
+            if (noiseValue < 0.15) {
+              terrainType = "water";
+            } else if (noiseValue < 0.25) {
+              terrainType = "sand";
+            } else if (noiseValue < 0.6) {
+              terrainType = "grass";
+            } else if (noiseValue < 0.75) {
+              terrainType = "forest";
+            } else {
+              terrainType = "mountain";
             }
-            
-            // Горизонтальные дороги
-            for (let i = 0; i < 2; i++) {
-                const y = Math.floor(Math.random() * (MAP_HEIGHT - 10)) + 5;
-                for (let x = 0; x < MAP_WIDTH; x++) {
-                    const index = y * MAP_WIDTH + x;
-                    if (index < map.length && map[index].type !== 'water') {
-                        map[index].type = 'road';
-                    }
-                }
-            }
-        }
 
-        // Генерация озер
-        function generateLakes() {
-            const lakeCount = 2 + Math.floor(Math.random() * 3);
-            
-            for (let i = 0; i < lakeCount; i++) {
-                const centerX = Math.floor(Math.random() * (MAP_WIDTH - 8)) + 4;
-                const centerY = Math.floor(Math.random() * (MAP_HEIGHT - 8)) + 4;
-                const radius = 2 + Math.floor(Math.random() * 3);
-                
-                for (let dy = -radius; dy <= radius; dy++) {
-                    for (let dx = -radius; dx <= radius; dx++) {
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist <= radius) {
-                            const x = centerX + dx;
-                            const y = centerY + dy;
-                            
-                            if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
-                                const index = y * MAP_WIDTH + x;
-                                if (index < map.length && map[index].type !== 'mountain') {
-                                    map[index].type = 'water';
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Функция для создания новой карты
-        function generateNewMap() {
-            generateMap();
-            
-            // Удаляем все юниты с карты
-            map.forEach(tile => {
-                tile.unit = null;
+            map.push({
+              x,
+              y,
+              type: terrainType,
+              unit: null,
             });
-            
-            // Очищаем списки войск
-            deployedForces.attacker = [];
-            deployedForces.defender = [];
-            
+          }
+        }
+
+        // Добавляем реку (случайное блуждание)
+        generateRiver();
+
+        // Добавляем дороги
+        generateRoads();
+
+        // Добавляем озера
+        generateLakes();
+      }
+
+      // Функция размытия шума
+      function blurNoise(noise, width, height, passes) {
+        let currentNoise = [...noise];
+
+        for (let p = 0; p < passes; p++) {
+          const newNoise = new Array(noise.length);
+
+          for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+              let sum = 0;
+              let count = 0;
+
+              // Учитываем соседние клетки
+              for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                  const nx = x + dx;
+                  const ny = y + dy;
+
+                  if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                    sum += currentNoise[ny * width + nx];
+                    count++;
+                  }
+                }
+              }
+
+              newNoise[y * width + x] = sum / count;
+            }
+          }
+
+          currentNoise = newNoise;
+        }
+
+        return currentNoise;
+      }
+
+      // Генерация реки (алгоритм случайного блуждания)
+      function generateRiver() {
+        // Начальная точка реки (случайно на левом краю)
+        let x = 0;
+        let y = Math.floor(Math.random() * (MAP_HEIGHT - 10)) + 5;
+        const riverWidth = 2 + Math.floor(Math.random() * 2);
+
+        // Пока река не достигнет правого края
+        while (x < MAP_WIDTH - 1) {
+          // Расширяем реку
+          for (let wy = -riverWidth; wy <= riverWidth; wy++) {
+            const ny = y + wy;
+            if (ny >= 0 && ny < MAP_HEIGHT) {
+              const index = ny * MAP_WIDTH + x;
+              if (index >= 0 && index < map.length) {
+                map[index].type = "water";
+              }
+            }
+          }
+
+          // Случайное движение: вправо (обязательно), вверх/вниз
+          const dir = Math.random();
+          if (dir < 0.4 && y > 3) y--;
+          else if (dir < 0.8 && y < MAP_HEIGHT - 4) y++;
+
+          x++;
+        }
+      }
+
+      // Генерация дорог
+      function generateRoads() {
+        // Вертикальные дороги
+        for (let i = 0; i < 2; i++) {
+          const x = Math.floor(Math.random() * (MAP_WIDTH - 10)) + 5;
+          for (let y = 0; y < MAP_HEIGHT; y++) {
+            const index = y * MAP_WIDTH + x;
+            if (index < map.length && map[index].type !== "water") {
+              map[index].type = "road";
+            }
+          }
+        }
+
+        // Горизонтальные дороги
+        for (let i = 0; i < 2; i++) {
+          const y = Math.floor(Math.random() * (MAP_HEIGHT - 10)) + 5;
+          for (let x = 0; x < MAP_WIDTH; x++) {
+            const index = y * MAP_WIDTH + x;
+            if (index < map.length && map[index].type !== "water") {
+              map[index].type = "road";
+            }
+          }
+        }
+      }
+
+      // Генерация озер
+      function generateLakes() {
+        const lakeCount = 2 + Math.floor(Math.random() * 3);
+
+        for (let i = 0; i < lakeCount; i++) {
+          const centerX = Math.floor(Math.random() * (MAP_WIDTH - 8)) + 4;
+          const centerY = Math.floor(Math.random() * (MAP_HEIGHT - 8)) + 4;
+          const radius = 2 + Math.floor(Math.random() * 3);
+
+          for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist <= radius) {
+                const x = centerX + dx;
+                const y = centerY + dy;
+
+                if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+                  const index = y * MAP_WIDTH + x;
+                  if (index < map.length && map[index].type !== "mountain") {
+                    map[index].type = "water";
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Функция для создания новой карты
+      function generateNewMap() {
+        generateMap();
+
+        // Удаляем все юниты с карты
+        map.forEach((tile) => {
+          tile.unit = null;
+        });
+
+        // Очищаем списки войск
+        deployedForces.attacker = [];
+        deployedForces.defender = [];
+
+        drawMap();
+        updateDeployedUnitsList();
+        addLogEntry("Сгенерирована новая карта. Все войска удалены.");
+      }
+
+      // Размещение юнита
+      function placeUnit(type, count, xpl, x, y, side) {
+        const tileIndex = y * MAP_WIDTH + x;
+
+        if (map[tileIndex].unit) return false;
+
+        const newUnit = {
+          id: Date.now() + Math.floor(Math.random() * 1000000), // уникальный ID
+          type: type,
+          count: count,
+          originalCount: count, // Сохраняем исходное количество
+          xpl: xpl,
+          originalXPL: xpl, // Сохраняем исходный XPL
+          side: side,
+          x: x,
+          y: y,
+          moved: false,
+          movement: UNIT_MOVEMENT[type] || 4,
+          attackRange: UNIT_ATTACK_RANGE[type] || 1,
+        };
+
+        deployedForces[side].push(newUnit);
+        map[tileIndex].unit = newUnit;
+        return true;
+      }
+
+      // Отрисовка карты
+      function drawMap() {
+        // Очистка холста
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Отрисовка тайлов
+        map.forEach((tile) => {
+          const x = tile.x * TILE_SIZE;
+          const y = tile.y * TILE_SIZE;
+
+          // Отрисовка местности
+          ctx.fillStyle = TERRAIN_TYPES[tile.type];
+          ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+          // Добавление текстур для разных типов местности
+          if (tile.type === "grass") {
+            ctx.fillStyle = "rgba(50, 120, 50, 0.3)";
+            for (let i = 0; i < 3; i++) {
+              const bladeX = x + Math.random() * TILE_SIZE;
+              const bladeY = y + Math.random() * TILE_SIZE;
+              ctx.fillRect(bladeX, bladeY, 1, 3);
+            }
+          }
+
+          if (tile.type === "forest") {
+            ctx.fillStyle = "#1a3a1a";
+            ctx.beginPath();
+            ctx.arc(
+              x + TILE_SIZE / 2,
+              y + TILE_SIZE / 2,
+              TILE_SIZE / 3,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+          }
+
+          if (tile.type === "mountain") {
+            ctx.fillStyle = "#555";
+            ctx.beginPath();
+            ctx.moveTo(x, y + TILE_SIZE);
+            ctx.lineTo(x + TILE_SIZE / 2, y);
+            ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
+            ctx.fill();
+          }
+
+          if (tile.type === "water") {
+            ctx.fillStyle = "rgba(100, 180, 255, 0.3)";
+            ctx.fillRect(x, y, TILE_SIZE, 2);
+          }
+
+          if (tile.type === "sand") {
+            ctx.fillStyle = "rgba(200, 180, 120, 0.2)";
+            for (let i = 0; i < 5; i++) {
+              const sandX = x + Math.random() * TILE_SIZE;
+              const sandY = y + Math.random() * TILE_SIZE;
+              ctx.fillRect(sandX, sandY, 2, 2);
+            }
+          }
+
+          if (tile.type === "road") {
+            ctx.fillStyle = "#a09070";
+            ctx.fillRect(x, y + TILE_SIZE / 2 - 2, TILE_SIZE, 4);
+          }
+
+          // Отрисовка юнитов
+          if (tile.unit) {
+            const unit = tile.unit;
+            const centerX = x + TILE_SIZE / 2;
+            const centerY = y + TILE_SIZE / 2;
+
+            // Цвет в зависимости от стороны
+            ctx.fillStyle = unit.side === "attacker" ? "#4fc3f7" : "#ff5252";
+
+            // Отрисовка юнита
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Обводка
+            ctx.strokeStyle = unit.moved ? "#FFD700" : "rgba(0, 0, 0, 0.7)";
+            ctx.lineWidth = unit.moved ? 3 : 2;
+            ctx.stroke();
+
+            // Символ юнита
+            ctx.fillStyle = "white";
+            ctx.font = "bold 12px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // Сокращенное название
+            const unitSymbol = unit.type
+              .split(" ")
+              .map((word) => word[0])
+              .join("")
+              .substring(0, 2);
+
+            ctx.fillText(unitSymbol, centerX, centerY);
+
+            // Индикатор XPL
+            ctx.font = "9px Arial";
+            ctx.fillText(`${unit.xpl.toFixed(1)}XPL`, centerX, centerY + 15);
+          }
+        });
+
+        // Отрисовка доступных клеток для перемещения
+        if (availableCells.length > 0) {
+          ctx.fillStyle = "rgba(100, 255, 100, 0.3)";
+          availableCells.forEach((cell) => {
+            const x = cell.x * TILE_SIZE;
+            const y = cell.y * TILE_SIZE;
+            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+          });
+        }
+      }
+
+      // Обработка клика на карте
+      function handleCanvasClick(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
+        const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+
+        // Проверка на выход за границы
+        if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) return;
+
+        const tileIndex = y * MAP_WIDTH + x;
+
+        // Фаза размещения
+        if (currentPhase === "deployment" && selectedUnitType) {
+          const type = selectedUnitType.dataset.type;
+          const count = parseInt(selectedUnitType.dataset.count);
+          const xpl = parseFloat(selectedUnitType.dataset.xpl);
+
+          if (placeUnit(type, count, xpl, x, y, currentSide)) {
+            addLogEntry(
+              `Размещен отряд: ${type} (${currentSide === "attacker" ? "Атакующий" : "Защитник"}) на позиции [${x}, ${y}]`,
+            );
             drawMap();
             updateDeployedUnitsList();
-            addLogEntry("Сгенерирована новая карта. Все войска удалены.");
+          } else {
+            addLogEntry("Невозможно разместить отряд: клетка занята!");
+          }
         }
-        
-        // Размещение юнита
-        function placeUnit(type, count, xpl, x, y, side) {
-            const tileIndex = y * MAP_WIDTH + x;
-            
-            if (map[tileIndex].unit) return false;
-            
-            const newUnit = {
-                id: Date.now() + Math.floor(Math.random() * 1000000), // уникальный ID
-                type: type,
-                count: count,
-                originalCount: count, // Сохраняем исходное количество
-                xpl: xpl,
-                originalXPL: xpl, // Сохраняем исходный XPL
-                side: side,
-                x: x,
-                y: y,
-                moved: false,
-                movement: UNIT_MOVEMENT[type] || 4,
-                attackRange: UNIT_ATTACK_RANGE[type] || 1
-            };
-            
-            deployedForces[side].push(newUnit);
-            map[tileIndex].unit = newUnit;
-            return true;
+
+        // Фаза перемещения
+        if (currentPhase === "movement") {
+          // Если выбран юнит
+          if (
+            map[tileIndex].unit &&
+            map[tileIndex].unit.side === currentSide &&
+            !map[tileIndex].unit.moved
+          ) {
+            selectedUnit = map[tileIndex].unit;
+            showMovementRange(selectedUnit);
+            addLogEntry(
+              `Выбран отряд: ${selectedUnit.type} (${currentSide === "attacker" ? "Атакующий" : "Защитник"})`,
+            );
+          }
+          // Если выбрана доступная клетка и есть выбранный юнит
+          else if (
+            selectedUnit &&
+            availableCells.some((cell) => cell.x === x && cell.y === y)
+          ) {
+            moveUnit(selectedUnit, x, y);
+          }
         }
-        
-        // Отрисовка карты
-        function drawMap() {
-            // Очистка холста
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Отрисовка тайлов
-            map.forEach(tile => {
-                const x = tile.x * TILE_SIZE;
-                const y = tile.y * TILE_SIZE;
-                
-                // Отрисовка местности
-                ctx.fillStyle = TERRAIN_TYPES[tile.type];
-                ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                
-                // Добавление текстур для разных типов местности
-                if (tile.type === 'grass') {
-                    ctx.fillStyle = 'rgba(50, 120, 50, 0.3)';
-                    for (let i = 0; i < 3; i++) {
-                        const bladeX = x + Math.random() * TILE_SIZE;
-                        const bladeY = y + Math.random() * TILE_SIZE;
-                        ctx.fillRect(bladeX, bladeY, 1, 3);
-                    }
-                }
-                
-                if (tile.type === 'forest') {
-                    ctx.fillStyle = '#1a3a1a';
-                    ctx.beginPath();
-                    ctx.arc(x + TILE_SIZE/2, y + TILE_SIZE/2, TILE_SIZE/3, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                
-                if (tile.type === 'mountain') {
-                    ctx.fillStyle = '#555';
-                    ctx.beginPath();
-                    ctx.moveTo(x, y + TILE_SIZE);
-                    ctx.lineTo(x + TILE_SIZE/2, y);
-                    ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
-                    ctx.fill();
-                }
-                
-                if (tile.type === 'water') {
-                    ctx.fillStyle = 'rgba(100, 180, 255, 0.3)';
-                    ctx.fillRect(x, y, TILE_SIZE, 2);
-                }
-                
-                if (tile.type === 'sand') {
-                    ctx.fillStyle = 'rgba(200, 180, 120, 0.2)';
-                    for (let i = 0; i < 5; i++) {
-                        const sandX = x + Math.random() * TILE_SIZE;
-                        const sandY = y + Math.random() * TILE_SIZE;
-                        ctx.fillRect(sandX, sandY, 2, 2);
-                    }
-                }
-                
-                if (tile.type === 'road') {
-                    ctx.fillStyle = '#a09070';
-                    ctx.fillRect(x, y + TILE_SIZE/2 - 2, TILE_SIZE, 4);
-                }
-                
-                // Отрисовка юнитов
-                if (tile.unit) {
-                    const unit = tile.unit;
-                    const centerX = x + TILE_SIZE/2;
-                    const centerY = y + TILE_SIZE/2;
-                    
-                    // Цвет в зависимости от стороны
-                    ctx.fillStyle = unit.side === 'attacker' ? '#4fc3f7' : '#ff5252';
-                    
-                    // Отрисовка юнита
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, TILE_SIZE/2 - 2, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Обводка
-                    ctx.strokeStyle = unit.moved ? '#FFD700' : 'rgba(0, 0, 0, 0.7)';
-                    ctx.lineWidth = unit.moved ? 3 : 2;
-                    ctx.stroke();
-                    
-                    // Символ юнита
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 12px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // Сокращенное название
-                    const unitSymbol = unit.type.split(' ')
-                        .map(word => word[0])
-                        .join('')
-                        .substring(0, 2);
-                        
-                    ctx.fillText(unitSymbol, centerX, centerY);
-                    
-                    // Индикатор XPL
-                    ctx.font = '9px Arial';
-                    ctx.fillText(`${unit.xpl.toFixed(1)}XPL`, centerX, centerY + 15);
-                }
-            });
-            
-            // Отрисовка доступных клеток для перемещения
-            if (availableCells.length > 0) {
-                ctx.fillStyle = 'rgba(100, 255, 100, 0.3)';
-                availableCells.forEach(cell => {
-                    const x = cell.x * TILE_SIZE;
-                    const y = cell.y * TILE_SIZE;
-                    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                });
+
+        drawMap();
+      }
+
+      // Показ доступных клеток для перемещения
+      function showMovementRange(unit) {
+        availableCells = [];
+        const movementRange = unit.movement;
+
+        for (
+          let y = Math.max(0, unit.y - movementRange);
+          y <= Math.min(MAP_HEIGHT - 1, unit.y + movementRange);
+          y++
+        ) {
+          for (
+            let x = Math.max(0, unit.x - movementRange);
+            x <= Math.min(MAP_WIDTH - 1, unit.x + movementRange);
+            x++
+          ) {
+            // Проверка расстояния (манхэттенское расстояние)
+            const distance = Math.abs(x - unit.x) + Math.abs(y - unit.y);
+            if (distance <= movementRange && distance > 0) {
+              const tileIndex = y * MAP_WIDTH + x;
+              // Проверка, что клетка свободна
+              if (!map[tileIndex].unit) {
+                availableCells.push({ x, y });
+              }
             }
+          }
         }
-        
-        // Обработка клика на карте
-        function handleCanvasClick(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-            const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
-            
-            // Проверка на выход за границы
-            if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) return;
-            
-            const tileIndex = y * MAP_WIDTH + x;
-            
-            // Фаза размещения
-            if (currentPhase === 'deployment' && selectedUnitType) {
-                const type = selectedUnitType.dataset.type;
-                const count = parseInt(selectedUnitType.dataset.count);
-                const xpl = parseFloat(selectedUnitType.dataset.xpl);
-                
-                if (placeUnit(type, count, xpl, x, y, currentSide)) {
-                    addLogEntry(`Размещен отряд: ${type} (${currentSide === 'attacker' ? 'Атакующий' : 'Защитник'}) на позиции [${x}, ${y}]`);
-                    drawMap();
-                    updateDeployedUnitsList();
-                } else {
-                    addLogEntry("Невозможно разместить отряд: клетка занята!");
-                }
-            }
-            
-            // Фаза перемещения
-            if (currentPhase === 'movement') {
-                // Если выбран юнит
-                if (map[tileIndex].unit && map[tileIndex].unit.side === currentSide && !map[tileIndex].unit.moved) {
-                    selectedUnit = map[tileIndex].unit;
-                    showMovementRange(selectedUnit);
-                    addLogEntry(`Выбран отряд: ${selectedUnit.type} (${currentSide === 'attacker' ? 'Атакующий' : 'Защитник'})`);
-                }
-                // Если выбрана доступная клетка и есть выбранный юнит
-                else if (selectedUnit && availableCells.some(cell => cell.x === x && cell.y === y)) {
-                    moveUnit(selectedUnit, x, y);
-                }
-            }
-            
-            drawMap();
-        }
-        
-        // Показ доступных клеток для перемещения
-        function showMovementRange(unit) {
-            availableCells = [];
-            const movementRange = unit.movement;
-            
-            for (let y = Math.max(0, unit.y - movementRange); y <= Math.min(MAP_HEIGHT - 1, unit.y + movementRange); y++) {
-                for (let x = Math.max(0, unit.x - movementRange); x <= Math.min(MAP_WIDTH - 1, unit.x + movementRange); x++) {
-                    // Проверка расстояния (манхэттенское расстояние)
-                    const distance = Math.abs(x - unit.x) + Math.abs(y - unit.y);
-                    if (distance <= movementRange && distance > 0) {
-                        const tileIndex = y * MAP_WIDTH + x;
-                        // Проверка, что клетка свободна
-                        if (!map[tileIndex].unit) {
-                            availableCells.push({x, y});
-                        }
-                    }
-                }
-            }
-            
-            movementInfo.innerHTML = `
+
+        movementInfo.innerHTML = `
                 <strong>${unit.type}</strong><br>
                 Радиус движения: ${movementRange} клеток<br>
                 Радиус атаки: ${unit.attackRange} клеток<br>
                 Выберите клетку для перемещения
             `;
-        }
-        
-        // Перемещение юнита
-        function moveUnit(unit, newX, newY) {
-            // Удаляем юнит из старой позиции
-            const oldTileIndex = unit.y * MAP_WIDTH + unit.x;
-            map[oldTileIndex].unit = null;
-            
-            // Добавляем в новую позицию
-            const newTileIndex = newY * MAP_WIDTH + newX;
-            unit.x = newX;
-            unit.y = newY;
-            unit.moved = true;
-            map[newTileIndex].unit = unit;
-            
-            // Сбрасываем выбор
-            selectedUnit = null;
-            availableCells = [];
-            
-            addLogEntry(`${unit.type} перемещен на позицию [${newX}, ${newY}]`);
-            movementInfo.innerHTML = "Отряд перемещен. Выберите следующий отряд.";
-            
-            updateDeployedUnitsList();
-        }
-        
-        // Обновление списка размещенных юнитов
-        function updateDeployedUnitsList() {
-            deployedUnits.innerHTML = '';
-            
-            // Атакующие
-            if (deployedForces.attacker.length > 0) {
-                deployedForces.attacker.forEach(unit => {
-                    const unitEl = document.createElement('div');
-                    unitEl.className = `unit-card ${unit.moved ? 'moved' : ''}`;
-                    if (unit.moved) unitEl.style.opacity = '0.7';
-                    unitEl.innerHTML = `
+      }
+
+      // Перемещение юнита
+      function moveUnit(unit, newX, newY) {
+        // Удаляем юнит из старой позиции
+        const oldTileIndex = unit.y * MAP_WIDTH + unit.x;
+        map[oldTileIndex].unit = null;
+
+        // Добавляем в новую позицию
+        const newTileIndex = newY * MAP_WIDTH + newX;
+        unit.x = newX;
+        unit.y = newY;
+        unit.moved = true;
+        map[newTileIndex].unit = unit;
+
+        // Сбрасываем выбор
+        selectedUnit = null;
+        availableCells = [];
+
+        addLogEntry(`${unit.type} перемещен на позицию [${newX}, ${newY}]`);
+        movementInfo.innerHTML = "Отряд перемещен. Выберите следующий отряд.";
+
+        updateDeployedUnitsList();
+      }
+
+      // Обновление списка размещенных юнитов
+      function updateDeployedUnitsList() {
+        deployedUnits.innerHTML = "";
+
+        // Атакующие
+        if (deployedForces.attacker.length > 0) {
+          deployedForces.attacker.forEach((unit) => {
+            const unitEl = document.createElement("div");
+            unitEl.className = `unit-card ${unit.moved ? "moved" : ""}`;
+            if (unit.moved) unitEl.style.opacity = "0.7";
+            unitEl.innerHTML = `
                         <div class="delete-unit" data-id="${unit.id}">
                             <i class="fas fa-trash"></i>
                         </div>
@@ -1236,19 +1390,19 @@
                         <div>${unit.count} чел. | ${unit.xpl.toFixed(1)} XPL</div>
                         <div>Позиция: [${unit.x}, ${unit.y}]</div>
                         <div>Движение: ${unit.movement} | Атака: ${unit.attackRange}</div>
-                        <div>${unit.moved ? 'Перемещен' : 'Готов к перемещению'}</div>
+                        <div>${unit.moved ? "Перемещен" : "Готов к перемещению"}</div>
                     `;
-                    deployedUnits.appendChild(unitEl);
-                });
-            }
-            
-            // Защитники
-            if (deployedForces.defender.length > 0) {
-                deployedForces.defender.forEach(unit => {
-                    const unitEl = document.createElement('div');
-                    unitEl.className = `unit-card defender ${unit.moved ? 'moved' : ''}`;
-                    if (unit.moved) unitEl.style.opacity = '0.7';
-                    unitEl.innerHTML = `
+            deployedUnits.appendChild(unitEl);
+          });
+        }
+
+        // Защитники
+        if (deployedForces.defender.length > 0) {
+          deployedForces.defender.forEach((unit) => {
+            const unitEl = document.createElement("div");
+            unitEl.className = `unit-card defender ${unit.moved ? "moved" : ""}`;
+            if (unit.moved) unitEl.style.opacity = "0.7";
+            unitEl.innerHTML = `
                         <div class="delete-unit" data-id="${unit.id}">
                             <i class="fas fa-trash"></i>
                         </div>
@@ -1256,511 +1410,618 @@
                         <div>${unit.count} чел. | ${unit.xpl.toFixed(1)} XPL</div>
                         <div>Позиция: [${unit.x}, ${unit.y}]</div>
                         <div>Движение: ${unit.movement} | Атака: ${unit.attackRange}</div>
-                        <div>${unit.moved ? 'Перемещен' : 'Готов к перемещению'}</div>
+                        <div>${unit.moved ? "Перемещен" : "Готов к перемещению"}</div>
                     `;
-                    deployedUnits.appendChild(unitEl);
-                });
-            }
-            
-            if (deployedForces.attacker.length === 0 && deployedForces.defender.length === 0) {
-                const emptyEl = document.createElement('div');
-                emptyEl.className = 'unit-card';
-                emptyEl.innerHTML = `<strong>Войска не размещены</strong><div>Добавьте войска на карту</div>`;
-                deployedUnits.appendChild(emptyEl);
-            }
-            
-            // Обновление статистики
-            updateStats();
+            deployedUnits.appendChild(unitEl);
+          });
         }
-        
+
+        if (
+          deployedForces.attacker.length === 0 &&
+          deployedForces.defender.length === 0
+        ) {
+          const emptyEl = document.createElement("div");
+          emptyEl.className = "unit-card";
+          emptyEl.innerHTML = `<strong>Войска не размещены</strong><div>Добавьте войска на карту</div>`;
+          deployedUnits.appendChild(emptyEl);
+        }
+
         // Обновление статистики
-        function updateStats() {
-            const attackerXPL = deployedForces.attacker.reduce((sum, unit) => sum + unit.xpl, 0);
-            const defenderXPL = deployedForces.defender.reduce((sum, unit) => sum + unit.xpl, 0);
-            
-            document.querySelectorAll('.stat-value')[0].textContent = attackerXPL.toFixed(1) + ' XPL';
-            document.querySelectorAll('.stat-value')[1].textContent = defenderXPL.toFixed(1) + ' XPL';
-            
-            document.querySelectorAll('.stat-card div')[2].innerHTML = 
-                `Отряды: <span class="attacker-color">${deployedForces.attacker.length}</span>`;
-            document.querySelectorAll('.stat-card div')[5].innerHTML = 
-                `Отряды: <span class="defender-color">${deployedForces.defender.length}</span>`;
+        updateStats();
+      }
+
+      // Обновление статистики
+      function updateStats() {
+        const attackerXPL = deployedForces.attacker.reduce(
+          (sum, unit) => sum + unit.xpl,
+          0,
+        );
+        const defenderXPL = deployedForces.defender.reduce(
+          (sum, unit) => sum + unit.xpl,
+          0,
+        );
+
+        document.querySelectorAll(".stat-value")[0].textContent =
+          attackerXPL.toFixed(1) + " XPL";
+        document.querySelectorAll(".stat-value")[1].textContent =
+          defenderXPL.toFixed(1) + " XPL";
+
+        document.querySelectorAll(".stat-card div")[2].innerHTML =
+          `Отряды: <span class="attacker-color">${deployedForces.attacker.length}</span>`;
+        document.querySelectorAll(".stat-card div")[5].innerHTML =
+          `Отряды: <span class="defender-color">${deployedForces.defender.length}</span>`;
+      }
+
+      // Проверка возможности атаки для юнита
+      function canUnitAttack(unit) {
+        for (
+          let y = Math.max(0, unit.y - unit.attackRange);
+          y <= Math.min(MAP_HEIGHT - 1, unit.y + unit.attackRange);
+          y++
+        ) {
+          for (
+            let x = Math.max(0, unit.x - unit.attackRange);
+            x <= Math.min(MAP_WIDTH - 1, unit.x + unit.attackRange);
+            x++
+          ) {
+            // Используем евклидово расстояние для проверки радиуса
+            const distance = Math.sqrt(
+              Math.pow(x - unit.x, 2) + Math.pow(y - unit.y, 2),
+            );
+            if (distance <= unit.attackRange) {
+              const tileIndex = y * MAP_WIDTH + x;
+              const tile = map[tileIndex];
+              if (tile.unit && tile.unit.side !== unit.side) {
+                return true;
+              }
+            }
+          }
         }
-        
-        // Проверка возможности атаки для юнита
-        function canUnitAttack(unit) {
-            for (let y = Math.max(0, unit.y - unit.attackRange); y <= Math.min(MAP_HEIGHT - 1, unit.y + unit.attackRange); y++) {
-                for (let x = Math.max(0, unit.x - unit.attackRange); x <= Math.min(MAP_WIDTH - 1, unit.x + unit.attackRange); x++) {
-                    // Используем евклидово расстояние для проверки радиуса
-                    const distance = Math.sqrt(Math.pow(x - unit.x, 2) + Math.pow(y - unit.y, 2));
-                    if (distance <= unit.attackRange) {
-                        const tileIndex = y * MAP_WIDTH + x;
-                        const tile = map[tileIndex];
-                        if (tile.unit && tile.unit.side !== unit.side) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+        return false;
+      }
+
+      // Проверка, находится ли юнит в радиусе атаки врага
+      function isUnitInEnemyRange(unit, enemyUnits) {
+        return enemyUnits.some((enemy) => {
+          const distance = Math.sqrt(
+            Math.pow(enemy.x - unit.x, 2) + Math.pow(enemy.y - unit.y, 2),
+          );
+          return distance <= enemy.attackRange;
+        });
+      }
+
+      // Симуляция боя
+      function simulateBattle() {
+        if (
+          deployedForces.attacker.length === 0 ||
+          deployedForces.defender.length === 0
+        ) {
+          addLogEntry(
+            "Ошибка: разместите войска обеих сторон перед симуляцией!",
+          );
+          return;
         }
-        
-        // Симуляция боя
-        function simulateBattle() {
-            if (deployedForces.attacker.length === 0 || deployedForces.defender.length === 0) {
-                addLogEntry("Ошибка: разместите войска обеих сторон перед симуляцией!");
-                return;
-            }
-            
-            addLogEntry("Начинаем симуляцию битвы...");
-            addLogEntry(`Режим расчета: ${positionMode ? "С учетом позиции войск" : "Без учета позиции"}`);
-            
-            // Расчет базовых сил с учетом режима
-            let attackerForces = [];
-            let defenderForces = [];
-            
-            if (positionMode) {
-                // Режим с учетом позиции - только войска в радиусе атаки
-                attackerForces = deployedForces.attacker.filter(unit => canUnitAttack(unit));
-                defenderForces = deployedForces.defender.filter(unit => canUnitAttack(unit));
-                
-                addLogEntry(`Атакующие силы в радиусе атаки: ${attackerForces.length} отрядов`);
-                addLogEntry(`Защитники в радиусе атаки: ${defenderForces.length} отрядов`);
-            } else {
-                // Режим без учета позиции - все войска
-                attackerForces = deployedForces.attacker;
-                defenderForces = deployedForces.defender;
-            }
-            
-            const attackerXPL = attackerForces.reduce((sum, unit) => sum + unit.xpl, 0);
-            const defenderXPL = defenderForces.reduce((sum, unit) => sum + unit.xpl, 0);
-            
-            addLogEntry(`Силы атакующего: ${attackerXPL.toFixed(1)} XPL`);
-            addLogEntry(`Силы защитника: ${defenderXPL.toFixed(1)} XPL`);
-            
-            // Бросок кубиков для модификаторов
-            const attackerRoll = rollDice(attackerDice);
-            const defenderRoll = rollDice(defenderDice);
-            
-            addLogEntry(`Тактические бонусы: Атакующий: ${attackerDice}d6 = <span class="dice-result">${attackerRoll}</span>, Защитник: ${defenderDice}d6 = <span class="dice-result">${defenderRoll}</span>`);
-            
-            // Расчет итоговых сил
-            const attackerTotal = attackerXPL + attackerRoll;
-            const defenderTotal = defenderXPL + defenderRoll;
-            
-            addLogEntry(`Итоговые силы: Атакующий - ${attackerTotal.toFixed(1)}, Защитник - ${defenderTotal.toFixed(1)}`);
-            
-            // Разница сил
-            const diff = attackerTotal - defenderTotal;
-            
-            // Определение результата
-            let result = "";
-            let attackerLoss = 0;
-            let defenderLoss = 0;
-            
-            if (diff >= 12) {
-                result = "Полный разгром! Атакующий побеждает без значительных потерь";
-                attackerLoss = 0.02;
-                defenderLoss = 0.9;
-            } else if (diff >= 8) {
-                result = "Решительная победа атакующего";
-                attackerLoss = 0.1;
-                defenderLoss = 0.7;
-            } else if (diff >= 4) {
-                result = "Победа атакующего";
-                attackerLoss = 0.2;
-                defenderLoss = 0.6;
-            } else if (diff >= 1) {
-                result = "Незначительная победа атакующего";
-                attackerLoss = 0.3;
-                defenderLoss = 0.5;
-            } else if (diff >= 0) {
-                result = "Ничья";
-                attackerLoss = 0.4;
-                defenderLoss = 0.4;
-            } else if (diff >= -4) {
-                result = "Незначительная победа защитника";
-                attackerLoss = 0.5;
-                defenderLoss = 0.3;
-            } else if (diff >= -8) {
-                result = "Победа защитника";
-                attackerLoss = 0.6;
-                defenderLoss = 0.2;
-            } else {
-                result = "Решительная победа защитника";
-                attackerLoss = 0.8;
-                defenderLoss = 0.1;
-            }
-            
-            addLogEntry(`<strong>Результат битвы: ${result}</strong>`);
-            addLogEntry(`Потери атакующего: ${(attackerLoss * 100).toFixed(0)}%`);
-            addLogEntry(`Потери защитника: ${(defenderLoss * 100).toFixed(0)}%`);
-            
-            // Визуализация результата на карте (если не отключено)
-            if (!ignoreLosses) {
-                visualizeBattleResult(attackerLoss, defenderLoss, attackerForces, defenderForces);
-            } else {
-                addLogEntry("<strong>Режим без потерь:</strong> Составы войск не изменены");
-            }
-            
-            // Сброс флагов перемещения для всех отрядов
-            deployedForces.attacker.forEach(unit => unit.moved = false);
-            deployedForces.defender.forEach(unit => unit.moved = false);
-            
-            // Сброс выбранного юнита и доступных клеток
-            selectedUnit = null;
-            availableCells = [];
-            
-            addLogEntry("Статус перемещения всех отрядов сброшен");
-            updateDeployedUnitsList();
-            
-            // Сброс флага игнорирования потерь после симуляции
-            ignoreLosses = false;
-            ignoreLossesToggle.classList.remove('active');
+
+        addLogEntry("Начинаем симуляцию битвы...");
+        addLogEntry(
+          `Режим расчета: ${positionMode ? "С учетом позиции войск" : "Без учета позиции"}`,
+        );
+
+        // Расчет базовых сил с учетом режима
+        let attackerForces = [];
+        let defenderForces = [];
+
+        if (positionMode) {
+          // Режим с учетом позиции - только войска в радиусе атаки
+          attackerForces = deployedForces.attacker.filter((unit) =>
+            canUnitAttack(unit),
+          );
+          defenderForces = deployedForces.defender.filter((unit) =>
+            canUnitAttack(unit),
+          );
+
+          addLogEntry(
+            `Атакующие силы в радиусе атаки: ${attackerForces.length} отрядов`,
+          );
+          addLogEntry(
+            `Защитники в радиусе атаки: ${defenderForces.length} отрядов`,
+          );
+        } else {
+          // Режим без учета позиции - все войска
+          attackerForces = deployedForces.attacker;
+          defenderForces = deployedForces.defender;
         }
-        
-        // Визуализация результата битвы с учетом боевого участия
-        function visualizeBattleResult(attackerLoss, defenderLoss, attackerForces, defenderForces) {
-            // Анимация потерь для атакующих (только участвовавшие в бою)
-            attackerForces.forEach(unit => {
-                // Подсветка отряда под атакой
-                highlightUnitUnderAttack(unit);
 
-                // Уменьшаем размер отряда
-                const newCount = Math.floor(unit.count * (1 - attackerLoss));
-                const lossPercent = Math.round((1 - newCount / unit.count) * 100);
+        const attackerTargets = deployedForces.attacker.filter((unit) =>
+          isUnitInEnemyRange(unit, defenderForces),
+        );
+        const defenderTargets = deployedForces.defender.filter((unit) =>
+          isUnitInEnemyRange(unit, attackerForces),
+        );
 
-                // Обновляем XPL пропорционально потерям
-                const effectiveness = newCount / unit.originalCount;
-                const newXPL = unit.originalXPL * effectiveness;
+        const attackerXPL = attackerForces.reduce(
+          (sum, unit) => sum + unit.xpl,
+          0,
+        );
+        const defenderXPL = defenderForces.reduce(
+          (sum, unit) => sum + unit.xpl,
+          0,
+        );
 
-                if (newXPL < 0.1) {
-                    addLogEntry(`${unit.type} (Атакующий) уничтожен из-за потерь`);
-                    deleteUnit(unit.id, true);
-                } else {
-                    unit.xpl = newXPL;
-                    unit.count = Math.max(1, newCount);
-                    addLogEntry(`${unit.type} (Атакующий) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
-                }
-            });
+        addLogEntry(`Силы атакующего: ${attackerXPL.toFixed(1)} XPL`);
+        addLogEntry(`Силы защитника: ${defenderXPL.toFixed(1)} XPL`);
 
-            // Анимация потерь для защитников (только участвовавшие в бою)
-            defenderForces.forEach(unit => {
-                // Подсветка отряда под атакой
-                highlightUnitUnderAttack(unit);
+        // Бросок кубиков для модификаторов
+        const attackerRoll = rollDice(attackerDice);
+        const defenderRoll = rollDice(defenderDice);
 
-                // Уменьшаем размер отряда
-                const newCount = Math.floor(unit.count * (1 - defenderLoss));
-                const lossPercent = Math.round((1 - newCount / unit.count) * 100);
+        addLogEntry(
+          `Тактические бонусы: Атакующий: ${attackerDice}d6 = <span class="dice-result">${attackerRoll}</span>, Защитник: ${defenderDice}d6 = <span class="dice-result">${defenderRoll}</span>`,
+        );
 
-                // Обновляем XPL пропорционально потерям
-                const effectiveness = newCount / unit.originalCount;
-                const newXPL = unit.originalXPL * effectiveness;
+        // Расчет итоговых сил
+        const attackerTotal = attackerXPL + attackerRoll;
+        const defenderTotal = defenderXPL + defenderRoll;
 
-                if (newXPL < 0.1) {
-                    addLogEntry(`${unit.type} (Защитник) уничтожен из-за потерь`);
-                    deleteUnit(unit.id, true);
-                } else {
-                    unit.xpl = newXPL;
-                    unit.count = Math.max(1, newCount);
-                    addLogEntry(`${unit.type} (Защитник) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`);
-                }
-            });
-            
-            // Перерисовываем карту и обновляем статистику
+        addLogEntry(
+          `Итоговые силы: Атакующий - ${attackerTotal.toFixed(1)}, Защитник - ${defenderTotal.toFixed(1)}`,
+        );
+
+        // Разница сил
+        const diff = attackerTotal - defenderTotal;
+
+        // Определение результата
+        let result = "";
+        let attackerLoss = 0;
+        let defenderLoss = 0;
+
+        if (diff >= 12) {
+          result =
+            "Полный разгром! Атакующий побеждает без значительных потерь";
+          attackerLoss = 0.02;
+          defenderLoss = 0.9;
+        } else if (diff >= 8) {
+          result = "Решительная победа атакующего";
+          attackerLoss = 0.1;
+          defenderLoss = 0.7;
+        } else if (diff >= 4) {
+          result = "Победа атакующего";
+          attackerLoss = 0.2;
+          defenderLoss = 0.6;
+        } else if (diff >= 1) {
+          result = "Незначительная победа атакующего";
+          attackerLoss = 0.3;
+          defenderLoss = 0.5;
+        } else if (diff >= 0) {
+          result = "Ничья";
+          attackerLoss = 0.4;
+          defenderLoss = 0.4;
+        } else if (diff >= -4) {
+          result = "Незначительная победа защитника";
+          attackerLoss = 0.5;
+          defenderLoss = 0.3;
+        } else if (diff >= -8) {
+          result = "Победа защитника";
+          attackerLoss = 0.6;
+          defenderLoss = 0.2;
+        } else {
+          result = "Решительная победа защитника";
+          attackerLoss = 0.8;
+          defenderLoss = 0.1;
+        }
+
+        addLogEntry(`<strong>Результат битвы: ${result}</strong>`);
+        addLogEntry(`Потери атакующего: ${(attackerLoss * 100).toFixed(0)}%`);
+        addLogEntry(`Потери защитника: ${(defenderLoss * 100).toFixed(0)}%`);
+
+        // Визуализация результата на карте (если не отключено)
+        if (!ignoreLosses) {
+          visualizeBattleResult(
+            attackerLoss,
+            defenderLoss,
+            attackerTargets,
+            defenderTargets,
+          );
+        } else {
+          addLogEntry(
+            "<strong>Режим без потерь:</strong> Составы войск не изменены",
+          );
+        }
+
+        // Сброс флагов перемещения для всех отрядов
+        deployedForces.attacker.forEach((unit) => (unit.moved = false));
+        deployedForces.defender.forEach((unit) => (unit.moved = false));
+
+        // Сброс выбранного юнита и доступных клеток
+        selectedUnit = null;
+        availableCells = [];
+
+        addLogEntry("Статус перемещения всех отрядов сброшен");
+        updateDeployedUnitsList();
+
+        // Сброс флага игнорирования потерь после симуляции
+        ignoreLosses = false;
+        ignoreLossesToggle.classList.remove("active");
+      }
+
+      // Визуализация результата битвы с учетом боевого участия
+      function visualizeBattleResult(
+        attackerLoss,
+        defenderLoss,
+        attackerTargets,
+        defenderTargets,
+      ) {
+        // Анимация потерь для атакующих (только под ударом)
+        attackerTargets.forEach((unit) => {
+          // Подсветка отряда под атакой
+          highlightUnitUnderAttack(unit);
+
+          // Уменьшаем размер отряда
+          const newCountFloat = unit.count * (1 - attackerLoss);
+          const lossPercent = Math.round(
+            (1 - newCountFloat / unit.count) * 100,
+          );
+
+          // Обновляем XPL пропорционально потерям
+          const effectiveness = newCountFloat / unit.originalCount;
+          const newXPL = unit.originalXPL * effectiveness;
+
+          if (newXPL < 0.1) {
+            addLogEntry(`${unit.type} (Атакующий) уничтожен из-за потерь`);
+            deleteUnit(unit.id, true);
+          } else {
+            unit.xpl = newXPL;
+            unit.count = Math.max(1, Math.round(newCountFloat));
+            addLogEntry(
+              `${unit.type} (Атакующий) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`,
+            );
+          }
+        });
+
+        // Анимация потерь для защитников (только под ударом)
+        defenderTargets.forEach((unit) => {
+          // Подсветка отряда под атакой
+          highlightUnitUnderAttack(unit);
+
+          // Уменьшаем размер отряда
+          const newCountFloat = unit.count * (1 - defenderLoss);
+          const lossPercent = Math.round(
+            (1 - newCountFloat / unit.count) * 100,
+          );
+
+          // Обновляем XPL пропорционально потерям
+          const effectiveness = newCountFloat / unit.originalCount;
+          const newXPL = unit.originalXPL * effectiveness;
+
+          if (newXPL < 0.1) {
+            addLogEntry(`${unit.type} (Защитник) уничтожен из-за потерь`);
+            deleteUnit(unit.id, true);
+          } else {
+            unit.xpl = newXPL;
+            unit.count = Math.max(1, Math.round(newCountFloat));
+            addLogEntry(
+              `${unit.type} (Защитник) понес потери: ${lossPercent}% | Новый XPL: ${unit.xpl.toFixed(1)}`,
+            );
+          }
+        });
+
+        // Перерисовываем карту и обновляем статистику
+        drawMap();
+        updateDeployedUnitsList();
+        updateStats();
+      }
+
+      // Подсветка юнита под атакой
+      function highlightUnitUnderAttack(unit) {
+        const tileIndex = unit.y * MAP_WIDTH + unit.x;
+        const tile = map[tileIndex];
+        if (tile.unit) {
+          // Добавляем класс для анимации
+          const canvas = document.getElementById("battleCanvas");
+          const ctx = canvas.getContext("2d");
+
+          // Перерисовываем тайл с анимацией
+          const x = tile.x * TILE_SIZE;
+          const y = tile.y * TILE_SIZE;
+
+          // Отрисовка анимации
+          ctx.fillStyle = "rgba(255, 50, 50, 0.5)";
+          ctx.beginPath();
+          ctx.arc(
+            x + TILE_SIZE / 2,
+            y + TILE_SIZE / 2,
+            TILE_SIZE / 2 + 5,
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
+
+          // Обновляем весь холст
+          setTimeout(() => drawMap(), 300);
+        }
+      }
+
+      // Бросок кубиков
+      function rollDice(count) {
+        let total = 0;
+        for (let i = 0; i < count; i++) {
+          total += Math.floor(Math.random() * 6) + 1;
+        }
+        return total;
+      }
+
+      // Добавление записи в журнал
+      function addLogEntry(message) {
+        const logEntry = document.createElement("div");
+        logEntry.className = "log-entry";
+        logEntry.innerHTML = message;
+        battleLog.appendChild(logEntry);
+        battleLog.scrollTop = battleLog.scrollHeight;
+      }
+
+      // Сброс игры
+      function resetGame() {
+        deployedForces = {
+          attacker: [],
+          defender: [],
+        };
+
+        map.forEach((tile) => {
+          tile.unit = null;
+        });
+
+        selectedUnit = null;
+        selectedUnitType = null;
+        currentSide = "attacker";
+        availableCells = [];
+        ignoreLosses = false;
+
+        // Сброс UI
+        attackerSide.classList.add("active");
+        defenderSide.classList.remove("active");
+        unitSelector.querySelectorAll(".unit-card").forEach((card) => {
+          card.classList.remove("selected");
+        });
+        ignoreLossesToggle.classList.remove("active");
+
+        battleLog.innerHTML =
+          '<div class="log-entry">[Система] Игра сброшена. Готовы к новому сражению!</div>';
+
+        generateMap();
+        drawMap();
+        updateDeployedUnitsList();
+        movementInfo.innerHTML =
+          "Фаза размещения: выберите тип войск и разместите их на карте";
+      }
+
+      // Очистка войск стороны
+      function clearCurrentSide() {
+        const side = currentSide;
+
+        // Удаляем войска со стороны с карты
+        map.forEach((tile) => {
+          if (tile.unit && tile.unit.side === side) {
+            tile.unit = null;
+          }
+        });
+
+        // Удаляем из списка войск
+        deployedForces[side] = [];
+
+        addLogEntry(
+          `Все войска стороны ${side === "attacker" ? "Атакующий" : "Защитник"} удалены`,
+        );
+        drawMap();
+        updateDeployedUnitsList();
+      }
+
+      // Удаление конкретного отряда
+      function deleteUnit(unitId, skipRender = false) {
+        // Ищем отряд по ID
+        let unitIndex = -1;
+        let side = null;
+
+        for (let i = 0; i < deployedForces.attacker.length; i++) {
+          if (deployedForces.attacker[i].id === unitId) {
+            unitIndex = i;
+            side = "attacker";
+            break;
+          }
+        }
+
+        if (unitIndex === -1) {
+          for (let i = 0; i < deployedForces.defender.length; i++) {
+            if (deployedForces.defender[i].id === unitId) {
+              unitIndex = i;
+              side = "defender";
+              break;
+            }
+          }
+        }
+
+        if (unitIndex > -1 && side) {
+          const unit = deployedForces[side][unitIndex];
+
+          // Удаляем с карты
+          const tileIndex = unit.y * MAP_WIDTH + unit.x;
+          map[tileIndex].unit = null;
+
+          // Удаляем из списка
+          deployedForces[side].splice(unitIndex, 1);
+
+          addLogEntry(
+            `Удален отряд: ${unit.type} (${side === "attacker" ? "Атакующий" : "Защитник"}) с позиции [${unit.x}, ${unit.y}]`,
+          );
+          if (!skipRender) {
             drawMap();
             updateDeployedUnitsList();
-            updateStats();
+          }
         }
-        
-        // Подсветка юнита под атакой
-        function highlightUnitUnderAttack(unit) {
-            const tileIndex = unit.y * MAP_WIDTH + unit.x;
-            const tile = map[tileIndex];
-            if (tile.unit) {
-                // Добавляем класс для анимации
-                const canvas = document.getElementById('battleCanvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Перерисовываем тайл с анимацией
-                const x = tile.x * TILE_SIZE;
-                const y = tile.y * TILE_SIZE;
-                
-                // Отрисовка анимации
-                ctx.fillStyle = 'rgba(255, 50, 50, 0.5)';
-                ctx.beginPath();
-                ctx.arc(x + TILE_SIZE/2, y + TILE_SIZE/2, TILE_SIZE/2 + 5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Обновляем весь холст
-                setTimeout(() => drawMap(), 300);
-            }
+      }
+
+      // Смена фазы игры
+      function setPhase(phase) {
+        currentPhase = phase;
+        phaseDeployment.classList.remove("active");
+        phaseMovement.classList.remove("active");
+        phaseBattle.classList.remove("active");
+
+        if (phase === "deployment") {
+          phaseDeployment.classList.add("active");
+          movementInfo.innerHTML =
+            "Фаза размещения: выберите тип войск и разместите их на карте";
+
+          // Сброс статуса перемещения при переходе в фазу размещения
+          deployedForces.attacker.forEach((unit) => (unit.moved = false));
+          deployedForces.defender.forEach((unit) => (unit.moved = false));
+          addLogEntry("Фаза размещения: статус перемещения сброшен");
+        } else if (phase === "movement") {
+          phaseMovement.classList.add("active");
+          movementInfo.innerHTML =
+            "Фаза перемещения: перемещайте войска на карте";
+        } else {
+          phaseBattle.classList.add("active");
+          movementInfo.innerHTML = "Фаза битвы: симуляция сражения";
+
+          // Сброс статуса перемещения при переходе в фазу битвы
+          deployedForces.attacker.forEach((unit) => (unit.moved = false));
+          deployedForces.defender.forEach((unit) => (unit.moved = false));
+          addLogEntry("Фаза битвы: статус перемещения сброшен");
         }
-        
-        // Бросок кубиков
-        function rollDice(count) {
-            let total = 0;
-            for (let i = 0; i < count; i++) {
-                total += Math.floor(Math.random() * 6) + 1;
-            }
-            return total;
+
+        // Сброс выбранного юнита и доступных клеток
+        selectedUnit = null;
+        availableCells = [];
+        updateDeployedUnitsList();
+      }
+
+      // Переключение режима учета позиции
+      function setPositionMode(mode) {
+        positionMode = mode;
+        positionModeOn.classList.toggle("active", mode);
+        positionModeOff.classList.toggle("active", !mode);
+        addLogEntry(
+          `Режим расчета: ${mode ? "С учетом позиции войск" : "Без учета позиции"}`,
+        );
+      }
+
+      // Включение/отключение учета потерь
+      function toggleIgnoreLosses() {
+        ignoreLosses = !ignoreLosses;
+        ignoreLossesToggle.classList.toggle("active", ignoreLosses);
+
+        if (ignoreLosses) {
+          addLogEntry("Режим без потерь активирован для следующей симуляции");
+        } else {
+          addLogEntry("Режим без потерь отключен");
         }
-        
-        // Добавление записи в журнал
-        function addLogEntry(message) {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry';
-            logEntry.innerHTML = message;
-            battleLog.appendChild(logEntry);
-            battleLog.scrollTop = battleLog.scrollHeight;
-        }
-        
-        // Сброс игры
-        function resetGame() {
-            deployedForces = {
-                attacker: [],
-                defender: []
-            };
-            
-            map.forEach(tile => {
-                tile.unit = null;
+      }
+
+      // Настройка обработчиков событий
+      function setupEventListeners() {
+        // Клик на карте
+        canvas.addEventListener("click", handleCanvasClick);
+
+        // Выбор стороны
+        attackerSide.addEventListener("click", () => {
+          currentSide = "attacker";
+          attackerSide.classList.add("active");
+          defenderSide.classList.remove("active");
+          addLogEntry("Выбрана сторона: Атакующий");
+        });
+
+        defenderSide.addEventListener("click", () => {
+          currentSide = "defender";
+          defenderSide.classList.add("active");
+          attackerSide.classList.remove("active");
+          addLogEntry("Выбрана сторона: Защитник");
+        });
+
+        // Кнопка симуляции
+        simulateBtn.addEventListener("click", simulateBattle);
+
+        // Кнопка сброса
+        resetBtn.addEventListener("click", resetGame);
+
+        // Кнопка новой карты
+        newMapBtn.addEventListener("click", generateNewMap);
+
+        // Кнопка отключения потерь
+        noLossBtn.addEventListener("click", toggleIgnoreLosses);
+        ignoreLossesToggle.addEventListener("click", toggleIgnoreLosses);
+
+        // Выбор фазы
+        phaseDeployment.addEventListener("click", () => setPhase("deployment"));
+        phaseMovement.addEventListener("click", () => setPhase("movement"));
+        phaseBattle.addEventListener("click", () => setPhase("battle"));
+
+        // Выбор кубиков для бонуса
+        document.querySelectorAll(".dice-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const diceCount = parseInt(this.dataset.dice);
+            const parent = this.parentElement;
+
+            // Определяем сторону
+            const isAttacker =
+              parent.previousElementSibling.classList.contains(
+                "attacker-color",
+              );
+
+            // Сбрасываем выделение
+            parent.querySelectorAll(".dice-btn").forEach((b) => {
+              b.classList.remove("selected");
             });
-            
-            selectedUnit = null;
-            selectedUnitType = null;
-            currentSide = 'attacker';
-            availableCells = [];
-            ignoreLosses = false;
-            
-            // Сброс UI
-            attackerSide.classList.add('active');
-            defenderSide.classList.remove('active');
-            unitSelector.querySelectorAll('.unit-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            ignoreLossesToggle.classList.remove('active');
-            
-            battleLog.innerHTML = '<div class="log-entry">[Система] Игра сброшена. Готовы к новому сражению!</div>';
-            
-            generateMap();
-            drawMap();
-            updateDeployedUnitsList();
-            movementInfo.innerHTML = "Фаза размещения: выберите тип войск и разместите их на карте";
-        }
-        
-        // Очистка войск стороны
-        function clearCurrentSide() {
-            const side = currentSide;
-            
-            // Удаляем войска со стороны с карты
-            map.forEach(tile => {
-                if (tile.unit && tile.unit.side === side) {
-                    tile.unit = null;
-                }
-            });
-            
-            // Удаляем из списка войск
-            deployedForces[side] = [];
-            
-            addLogEntry(`Все войска стороны ${side === 'attacker' ? 'Атакующий' : 'Защитник'} удалены`);
-            drawMap();
-            updateDeployedUnitsList();
-        }
-        
-        // Удаление конкретного отряда
-        function deleteUnit(unitId, skipRender = false) {
-            // Ищем отряд по ID
-            let unitIndex = -1;
-            let side = null;
-            
-            for (let i = 0; i < deployedForces.attacker.length; i++) {
-                if (deployedForces.attacker[i].id === unitId) {
-                    unitIndex = i;
-                    side = 'attacker';
-                    break;
-                }
-            }
-            
-            if (unitIndex === -1) {
-                for (let i = 0; i < deployedForces.defender.length; i++) {
-                    if (deployedForces.defender[i].id === unitId) {
-                        unitIndex = i;
-                        side = 'defender';
-                        break;
-                    }
-                }
-            }
-            
-            if (unitIndex > -1 && side) {
-                const unit = deployedForces[side][unitIndex];
-                
-                // Удаляем с карты
-                const tileIndex = unit.y * MAP_WIDTH + unit.x;
-                map[tileIndex].unit = null;
-                
-                // Удаляем из списка
-                deployedForces[side].splice(unitIndex, 1);
-                
-                addLogEntry(`Удален отряд: ${unit.type} (${side === 'attacker' ? 'Атакующий' : 'Защитник'}) с позиции [${unit.x}, ${unit.y}]`);
-                if (!skipRender) {
-                    drawMap();
-                    updateDeployedUnitsList();
-                }
-            }
-        }
-        
-        // Смена фазы игры
-        function setPhase(phase) {
-            currentPhase = phase;
-            phaseDeployment.classList.remove('active');
-            phaseMovement.classList.remove('active');
-            phaseBattle.classList.remove('active');
-            
-            if (phase === 'deployment') {
-                phaseDeployment.classList.add('active');
-                movementInfo.innerHTML = "Фаза размещения: выберите тип войск и разместите их на карте";
-                
-                // Сброс статуса перемещения при переходе в фазу размещения
-                deployedForces.attacker.forEach(unit => unit.moved = false);
-                deployedForces.defender.forEach(unit => unit.moved = false);
-                addLogEntry("Фаза размещения: статус перемещения сброшен");
-            } else if (phase === 'movement') {
-                phaseMovement.classList.add('active');
-                movementInfo.innerHTML = "Фаза перемещения: перемещайте войска на карте";
+
+            // Выделяем выбранное
+            this.classList.add("selected");
+
+            // Сохраняем выбор
+            if (isAttacker) {
+              attackerDice = diceCount;
             } else {
-                phaseBattle.classList.add('active');
-                movementInfo.innerHTML = "Фаза битвы: симуляция сражения";
-                
-                // Сброс статуса перемещения при переходе в фазу битвы
-                deployedForces.attacker.forEach(unit => unit.moved = false);
-                deployedForces.defender.forEach(unit => unit.moved = false);
-                addLogEntry("Фаза битвы: статус перемещения сброшен");
+              defenderDice = diceCount;
             }
-            
-            // Сброс выбранного юнита и доступных клеток
-            selectedUnit = null;
-            availableCells = [];
-            updateDeployedUnitsList();
-        }
-        
+
+            addLogEntry(
+              `Бонус для ${isAttacker ? "Атакующего" : "Защитника"} установлен: ${diceCount}d6`,
+            );
+          });
+        });
+
         // Переключение режима учета позиции
-        function setPositionMode(mode) {
-            positionMode = mode;
-            positionModeOn.classList.toggle('active', mode);
-            positionModeOff.classList.toggle('active', !mode);
-            addLogEntry(`Режим расчета: ${mode ? "С учетом позиции войск" : "Без учета позиции"}`);
-        }
-        
-        // Включение/отключение учета потерь
-        function toggleIgnoreLosses() {
-            ignoreLosses = !ignoreLosses;
-            ignoreLossesToggle.classList.toggle('active', ignoreLosses);
-            
-            if (ignoreLosses) {
-                addLogEntry("Режим без потерь активирован для следующей симуляции");
-            } else {
-                addLogEntry("Режим без потерь отключен");
+        positionModeOn.addEventListener("click", () => setPositionMode(true));
+        positionModeOff.addEventListener("click", () => setPositionMode(false));
+
+        // Выбор типа юнита для размещения
+        unitSelector.querySelectorAll(".unit-card").forEach((card) => {
+          card.addEventListener("click", function () {
+            unitSelector.querySelectorAll(".unit-card").forEach((c) => {
+              c.classList.remove("selected");
+            });
+            this.classList.add("selected");
+            selectedUnitType = this;
+            addLogEntry(`Выбран тип войск: ${this.dataset.type}`);
+          });
+        });
+
+        // Очистка войск стороны
+        clearSideBtn.addEventListener("click", clearCurrentSide);
+
+        // Удаление конкретных отрядов
+        deployedUnits.addEventListener("click", function (e) {
+          if (e.target.closest(".delete-unit")) {
+            const unitId = parseInt(
+              e.target.closest(".delete-unit").dataset.id,
+            );
+            if (confirm("Удалить этот отряд?")) {
+              deleteUnit(unitId);
             }
-        }
-        
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            // Клик на карте
-            canvas.addEventListener('click', handleCanvasClick);
-            
-            // Выбор стороны
-            attackerSide.addEventListener('click', () => {
-                currentSide = 'attacker';
-                attackerSide.classList.add('active');
-                defenderSide.classList.remove('active');
-                addLogEntry("Выбрана сторона: Атакующий");
-            });
-            
-            defenderSide.addEventListener('click', () => {
-                currentSide = 'defender';
-                defenderSide.classList.add('active');
-                attackerSide.classList.remove('active');
-                addLogEntry("Выбрана сторона: Защитник");
-            });
-            
-            // Кнопка симуляции
-            simulateBtn.addEventListener('click', simulateBattle);
-            
-            // Кнопка сброса
-            resetBtn.addEventListener('click', resetGame);
-            
-            // Кнопка новой карты
-            newMapBtn.addEventListener('click', generateNewMap);
-            
-            // Кнопка отключения потерь
-            noLossBtn.addEventListener('click', toggleIgnoreLosses);
-            ignoreLossesToggle.addEventListener('click', toggleIgnoreLosses);
-            
-            // Выбор фазы
-            phaseDeployment.addEventListener('click', () => setPhase('deployment'));
-            phaseMovement.addEventListener('click', () => setPhase('movement'));
-            phaseBattle.addEventListener('click', () => setPhase('battle'));
-            
-            // Выбор кубиков для бонуса
-            document.querySelectorAll('.dice-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const diceCount = parseInt(this.dataset.dice);
-                    const parent = this.parentElement;
-                    
-                    // Определяем сторону
-                    const isAttacker = parent.previousElementSibling.classList.contains('attacker-color');
-                    
-                    // Сбрасываем выделение
-                    parent.querySelectorAll('.dice-btn').forEach(b => {
-                        b.classList.remove('selected');
-                    });
-                    
-                    // Выделяем выбранное
-                    this.classList.add('selected');
-                    
-                    // Сохраняем выбор
-                    if (isAttacker) {
-                        attackerDice = diceCount;
-                    } else {
-                        defenderDice = diceCount;
-                    }
-                    
-                    addLogEntry(`Бонус для ${isAttacker ? 'Атакующего' : 'Защитника'} установлен: ${diceCount}d6`);
-                });
-            });
-            
-            // Переключение режима учета позиции
-            positionModeOn.addEventListener('click', () => setPositionMode(true));
-            positionModeOff.addEventListener('click', () => setPositionMode(false));
-            
-            // Выбор типа юнита для размещения
-            unitSelector.querySelectorAll('.unit-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    unitSelector.querySelectorAll('.unit-card').forEach(c => {
-                        c.classList.remove('selected');
-                    });
-                    this.classList.add('selected');
-                    selectedUnitType = this;
-                    addLogEntry(`Выбран тип войск: ${this.dataset.type}`);
-                });
-            });
-            
-            // Очистка войск стороны
-            clearSideBtn.addEventListener('click', clearCurrentSide);
-            
-            // Удаление конкретных отрядов
-            deployedUnits.addEventListener('click', function(e) {
-                if (e.target.closest('.delete-unit')) {
-                    const unitId = parseInt(e.target.closest('.delete-unit').dataset.id);
-                    if (confirm("Удалить этот отряд?")) {
-                        deleteUnit(unitId);
-                    }
-                }
-            });
-        }
-        
-        // Запуск приложения
-        window.onload = init;
+          }
+        });
+      }
+
+      // Запуск приложения
+      window.onload = init;
     </script>
-</body>
+  </body>
 </html>
